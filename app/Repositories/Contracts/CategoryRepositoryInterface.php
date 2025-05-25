@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
-interface CategoryRepostoryInterface{
+interface CategoryRepositoryInterface
+{
     public function getAllCategories();
 }
