@@ -38,6 +38,10 @@ class WorkshopParticipantResource extends Resource
                     ->required()
                     ->email()
                     ->maxLength(255),
+                
+                Forms\Components\TextInput::make('company')
+                    ->maxLength(255)
+                    ->placeholder('Company name'),
 
                 Forms\Components\Select::make('workshop_id')
                     ->relationship('workshop', 'name')
@@ -66,9 +70,13 @@ class WorkshopParticipantResource extends Resource
 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-
+                
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
+                
+                Tables\Columns\TextColumn::make('company')
+                    ->searchable()
+                    ->toggleable(), // Makes it optional to display
             ])
             ->filters([
                 //

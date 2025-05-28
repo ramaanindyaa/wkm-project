@@ -88,6 +88,7 @@ class BookingService
                 'name' => $orderData['name'],
                 'email' => $orderData['email'],
                 'phone' => $orderData['phone'],
+                'company' => $orderData['company'] ?? null, // Add this line
                 'customer_bank_name' => $paymentData['customer_bank_name'],
                 'customer_bank_number' => $paymentData['customer_bank_number'],
                 'customer_bank_account' => $paymentData['customer_bank_account'],
@@ -99,29 +100,18 @@ class BookingService
                 'booking_trx_id' => BookingTransaction::generateUniqueTrxId(),
             ]);
         
-            // Check if participants data exists, if not create default participant data
-            if (isset($orderData['participants']) && is_array($orderData['participants'])) {
-                // Create workshop participants from stored data
-                foreach ($orderData['participants'] as $participant) {
-                    WorkshopParticipant::create([
-                        'name' => $participant['name'],
-                        'occupation' => $participant['occupation'],
-                        'email' => $participant['email'],
-                        'workshop_id' => $bookingTransaction->workshop_id,
-                        'booking_transaction_id' => $bookingTransaction->id,
-                    ]);
-                }
-            } else {
-                // Create single participant from main booking data
+            // Create participants
+            foreach ($orderData['participants'] as $participant) {
                 WorkshopParticipant::create([
-                    'name' => $orderData['name'],
-                    'occupation' => 'Not specified', // Default value
-                    'email' => $orderData['email'],
+                    'name' => $participant['name'],
+                    'occupation' => $participant['occupation'],
+                    'email' => $participant['email'],
+                    'company' => $participant['company'] ?? null,
                     'workshop_id' => $bookingTransaction->workshop_id,
                     'booking_transaction_id' => $bookingTransaction->id,
                 ]);
             }
-
+        
             // Commit the transaction
             DB::commit();
 

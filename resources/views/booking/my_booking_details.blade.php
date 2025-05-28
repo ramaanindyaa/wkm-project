@@ -217,6 +217,15 @@
                                                 </p>
                                             </div>
                                         </div>
+                                        <div class="flex flex-col gap-4">
+                                            <p class="font-medium text-aktiv-grey">Company</p>
+                                            <div class="input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
+                                                <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                                                <p class="font-medium text-lg leading-[27px]">
+                                                    {{ $itemParticipant->company ?? 'Not specified' }}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

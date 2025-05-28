@@ -13,13 +13,14 @@ class BookingTransaction extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'booking_trx_id',
         'name',
-        'phone',
         'email',
+        'phone',
+        'company', // Add this line
         'customer_bank_name',
         'customer_bank_account',
         'customer_bank_number',
-        'booking_trx_id',
         'proof',
         'quantity',
         'total_amount',

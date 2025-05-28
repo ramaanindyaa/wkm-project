@@ -17,6 +17,7 @@ class WorkshopParticipant extends Model
         'name',
         'occupation',
         'email',
+        'company', // Add this line
         'workshop_id',
         'booking_transaction_id',
     ];

@@ -23,13 +23,15 @@ class StoreBookingRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255', 
-            'phone' => 'required|string|max:20',
-            'quantity' => 'required|integer|min:1',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255', // Add this line
+            'quantity' => 'required|numeric|min:1',
             'participants' => 'required|array|min:1',
             'participants.*.name' => 'required|string|max:255',
-            'participants.*.occupation' => 'required|string|max:255',
             'participants.*.email' => 'required|email|max:255',
+            'participants.*.occupation' => 'required|string|max:255',
+            'participants.*.company' => 'nullable|string|max:255',
         ];
     }
 }

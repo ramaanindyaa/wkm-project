@@ -137,6 +137,14 @@ Booking {{ $workshop->name }}
                                 <input type="email" name="email" id="email" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Write your email address" required>
                             </div>
                         </label>
+                        <label class="flex flex-col gap-4">
+                            <p class="font-medium text-aktiv-grey">Company</p>
+                            <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
+                                <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                <input type="text" name="company" id="company" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Your company name">
+                            </div>
+                        </label>
                     </div>
                 </div>
                 <div class="flex flex-col rounded-3xl p-8 gap-8 bg-white">
@@ -198,6 +206,14 @@ Booking {{ $workshop->name }}
                                                 <input type="email" name="participants[0][email]" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Attendant Email Address" required>
                                             </div>
                                         </label>
+                                        <label class="flex flex-col gap-4">
+                                            <p class="font-medium text-aktiv-grey">Company</p>
+                                            <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
+                                                <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                                <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                                <input type="text" name="participants[0][company]" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Company Name">
+                                            </div>
+                                        </label>
                                     </div>
                                 </div>
                                 <span class="hidden font-medium text-aktiv-red peer-has-[.invalid]:block">Please fill in the attendant’s data before proceeding.</span>
@@ -238,8 +254,10 @@ Booking {{ $workshop->name }}
 @endsection
 
 @push('after-scripts')
-
-<script src="{{asset ('js/accodion.js') }}"></script>
-<script src="{{asset ('js/booking.js') }}"></script>
-
+<script>
+    // Define the base URL for assets using the current URL path to public directory
+    const assetBaseUrl = "{{ url('/') }}/";
+</script>
+<script src="{{asset('js/accodion.js')}}"></script>
+<script src="{{asset('js/booking.js')}}"></script>
 @endpush

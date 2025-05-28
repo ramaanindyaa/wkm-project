@@ -102,6 +102,9 @@ class BookingTransactionResource extends Resource
                                             ->required()
                                             ->email()
                                             ->label('Email'),
+                                        Forms\Components\TextInput::make('company')
+                                            ->label('Company')
+                                            ->maxLength(255),
                                     ])
                                     ->columns(1)
                                     ->label('Participant Details'),
@@ -122,6 +125,9 @@ class BookingTransactionResource extends Resource
                                 Forms\Components\TextInput::make('phone')
                                     ->required()
                                     ->tel()
+                                    ->maxLength(255),
+        
+                                Forms\Components\TextInput::make('company') // Add this field
                                     ->maxLength(255),
         
                                 Forms\Components\TextInput::make('customer_bank_name')
@@ -186,6 +192,10 @@ class BookingTransactionResource extends Resource
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->label('Terverifikasi'),
+
+                Tables\Columns\TextColumn::make('company')
+                    ->searchable()
+                    ->toggleable(),
             ])
             ->filters([
                 //

@@ -4,19 +4,19 @@
     </a>
     <ul class="flex items-center justify-center gap-8">
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-            <a href="view-booking.html">View My Booking</a>
+            <a href="{{route('front.check_booking')}}">View My Booking</a>
         </li>
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-            <a href="">Workshop</a>
+            <a href="{{route('front.index')}}#Workshops">Workshop</a>
         </li>
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-            <a href="">Community</a>
+            <a href="{{route('front.index')}}#Categories">Community</a>
         </li>
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-            <a href="">Testimony</a>
+            <a href="{{route('front.index')}}#Testimony">Testimony</a>
         </li>
     </ul>
-    <a href="#" class="flex items-center rounded-full h-12 px-6 gap-[10px] w-fit shrink-0 bg-aktiv-green">
+    <a href="https://wa.me/your-phone-number" target="_blank" class="flex items-center rounded-full h-12 px-6 gap-[10px] w-fit shrink-0 bg-aktiv-green">
         <span class="font-semibold text-white">Contact CS</span>
         <img src="{{asset('assets/images/icons/whatsapp.svg')}}" class="w-6 h-6" alt="icon">
     </a>
