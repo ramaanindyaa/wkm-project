@@ -1,29 +1,8 @@
 @extends('layout.app')
+@section('title', 'Home')
 @section('content')
 <div class="h-[112px]">
-    <nav class="fixed top-0 flex items-center w-full justify-between p-8 bg-white z-30">
-        <a href="index.html">
-            <img src="{{asset('assets/images/logos/Logo.svg')}}" class="flex shrink-0" alt="logo">
-        </a>
-        <ul class="flex items-center justify-center gap-8">
-            <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-                <a href="view-booking.html">View My Booking</a>
-            </li>
-            <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-                <a href="">Workshop</a>
-            </li>
-            <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-                <a href="">Community</a>
-            </li>
-            <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
-                <a href="">Testimony</a>
-            </li>
-        </ul>
-        <a href="#" class="flex items-center rounded-full h-12 px-6 gap-[10px] w-fit shrink-0 bg-aktiv-green">
-            <span class="font-semibold text-white">Contact CS</span>
-            <img src="{{asset('assets/images/icons/whatsapp.svg')}}" class="w-6 h-6" alt="icon">
-        </a>
-    </nav>
+    <x-nav/>
 </div>
 <header class="flex flex-col w-full max-h-[1210px] bg-[linear-gradient(0deg,_#5B8CE9_0%,_#4EB6F5_100%)] -mb-[128px]">
     <div class="flex flex-col items-center gap-6 mt-20">
@@ -79,42 +58,24 @@
             </a>
         </div>
         <div class="grid grid-cols-4 gap-6">
-            <a href="category.html" class="card">
+
+            @forelse ($categories as $itemCategory )
+            <a href="{{ route('front.category', $itemCategory->slug) }}" class="card">
                 <div class="flex items-center h-full rounded-3xl p-5 pr-1 gap-3 bg-white">
-                    <img src="{{asset('assets/images/icons/code-bg.svg')}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
+                    <img src="{{asset(Storage::url($itemCategory->icon))}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
                     <div class="flex flex-col gap-[2px] overflow-hidden">
-                        <h3 class="font-semibold text-lg leading-[27px] break-words">Programming</h3>
-                        <p class="font-medium text-aktiv-grey">HTML, CSS and more</p>
+                        <h3 class="font-semibold text-lg leading-[27px] break-words">
+                            {{ $itemCategory->name }}
+                        </h3>
+                        <p class="font-medium text-aktiv-grey">
+                            {{ $itemCategory->tagline }}
+                        </p>
                     </div>
                 </div>
             </a>
-            <a href="category.html" class="card">
-                <div class="flex items-center h-full rounded-3xl p-5 pr-1 gap-3 bg-white">
-                    <img src="{{asset('assets/images/icons/wallet-3-bg.svg')}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
-                    <div class="flex flex-col gap-[2px] overflow-hidden">
-                        <h3 class="font-semibold text-lg leading-[27px] break-words">Self Improvment</h3>
-                        <p class="font-medium text-aktiv-grey">Invest, Tax and more</p>
-                    </div>
-                </div>
-            </a>
-            <a href="category.html" class="card">
-                <div class="flex items-center h-full rounded-3xl p-5 pr-1 gap-3 bg-white">
-                    <img src="{{asset('assets/images/icons/musicnote-bg.svg')}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
-                    <div class="flex flex-col gap-[2px] overflow-hidden">
-                        <h3 class="font-semibold text-lg leading-[27px] break-words">Music</h3>
-                        <p class="font-medium text-aktiv-grey">Piano, Sing and more</p>
-                    </div>
-                </div>
-            </a>
-            <a href="category.html" class="card">
-                <div class="flex items-center h-full rounded-3xl p-5 pr-1 gap-3 bg-white">
-                    <img src="{{asset('assets/images/icons/berzier-bg.svg')}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
-                    <div class="flex flex-col gap-[2px] overflow-hidden">
-                        <h3 class="font-semibold text-lg leading-[27px] break-words">Art & Design</h3>
-                        <p class="font-medium text-aktiv-grey">Balet, Run and more</p>
-                    </div>
-                </div>
-            </a>
+            @empty
+                <p>Belum ada kategori</p>
+            @endforelse
         </div>
     </div>
 </section>
@@ -128,264 +89,82 @@
             </a>
         </div>
         <div class="grid grid-cols-3 gap-6">
-            <a href="details.html" class="card">
+
+            @forelse ($newWorkshops as $itemNewWorkshop )
+            <a href="{{ route('front.details', $itemNewWorkshop->slug) }}" class="card">
                 <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
                     <div class="flex flex-col gap-[18px]">
                         <div class="flex items-center gap-3">
                             <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo1.png')}}" class="w-full h-full object-cover" alt="avatar">
+                                <img src="{{asset(Storage::url($itemNewWorkshop->instructor->avatar))}}" class="w-full h-full object-cover" alt="avatar">
                             </div>
                             <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Megamore S Qie</p>
-                                <p class="font-medium text-aktiv-grey">Motivator Intructor</p>
+                                <p class="font-semibold text-lg leading-[27px]">
+                                    {{ $itemNewWorkshop->instructor->name }}
+                                </p>
+                                <p class="font-medium text-aktiv-grey">
+                                    {{ $itemNewWorkshop->instructor->occupation }}
+                                </p>
                             </div>
                         </div>
                         <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail1.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">OPEN</span>
-                            </div>
-                        </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Tue, 30 May 2024</span>
+                            <img src="{{asset(Storage::url($itemNewWorkshop->thumbnail))}}" class="w-full h-full object-cover" alt="thumbnail">
+                            @if ($itemNewWorkshop->is_open)
+                                @if ($itemNewWorkshop->has_started)
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
+                                    <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">STARTED</span>
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
+                                @else
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
+                                    <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">OPEN</span>
                                 </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">Mastering the Art of Public Speaking: Practical Tips and Powerful Techniques</h3>
-                            <p class="font-medium text-aktiv-grey">Self Improvement</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
-                            <p class="font-medium text-aktiv-grey">/person</p>
-                        </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
-                    </div>
-                </div>
-            </a>
-            <a href="details-started.html" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
-                    <div class="flex flex-col gap-[18px]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo2.png')}}" class="w-full h-full object-cover" alt="avatar">
-                            </div>
-                            <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Feri Ahmad</p>
-                                <p class="font-medium text-aktiv-grey">Full-Stack Dev Insturctor</p>
-                            </div>
-                        </div>
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail2.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
-                                <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">STARTED</span>
-                            </div>
-                        </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Fri, 24 May 2024</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
-                                </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">Mastering HTML & CSS: Intensive Workshop for Beginners</h3>
-                            <p class="font-medium text-aktiv-grey">Programming</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
-                            <p class="font-medium text-aktiv-grey">/person</p>
-                        </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
-                    </div>
-                </div>
-            </a>
-            <a href="details-closed.html" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
-                    <div class="flex flex-col gap-[18px]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo3.png')}}" class="w-full h-full object-cover" alt="avatar">
-                            </div>
-                            <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Ichsan Smth</p>
-                                <p class="font-medium text-aktiv-grey">UIUX Designer Insturctor</p>
-                            </div>
-                        </div>
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail3.png')}}" class="w-full h-full object-cover" alt="thumbnail">
+                                @endif
+                            @else
                             <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-red text-white z-10">
-                                <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">CLOSED</span>
+                                    <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">CLOSED</span>
                             </div>
+                            @endif
                         </div>
                         <div class="card-detail flex flex-col gap-2">
                             <div class="flex items-center gap-3">
                                 <div class="flex items-center gap-1">
                                     <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Tue, 30 May 2024</span>
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ \Carbon\Carbon::parse($itemNewWorkshop->started_at)->translatedFormat('l, d F Y') }}
+                                    </span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ \Carbon\Carbon::parse($itemNewWorkshop->time_at)->format('H:i A') }}
+                                    </span>
                                 </div>
                             </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">UX/UI Design: Creating Amazing User Experiences</h3>
-                            <p class="font-medium text-aktiv-grey">Art & Design</p>
+                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
+                                {{ $itemNewWorkshop->name }}
+                            </h3>
+                            <p class="font-medium text-aktiv-grey">
+                                {{ $itemNewWorkshop->category->name }}
+                            </p>
                         </div>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
+                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">
+                                Rp{{ number_format($itemNewWorkshop->price, 0, ',', '.') }}
+                            </p>
                             <p class="font-medium text-aktiv-grey">/person</p>
                         </div>
                         <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
                     </div>
                 </div>
             </a>
-            <a href="details.html" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
-                    <div class="flex flex-col gap-[18px]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo4.png')}}" class="w-full h-full object-cover" alt="avatar">
-                            </div>
-                            <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Andika Nerd</p>
-                                <p class="font-medium text-aktiv-grey">Musician Instructor</p>
-                            </div>
-                        </div>
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail4.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">OPEN</span>
-                            </div>
-                        </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Tue, 30 May 2024</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
-                                </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">Creativity in Music: Developing New Ideas and Inspiration</h3>
-                            <p class="font-medium text-aktiv-grey">Music</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
-                            <p class="font-medium text-aktiv-grey">/person</p>
-                        </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
-                    </div>
-                </div>
-            </a>
-            <a href="details.html" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
-                    <div class="flex flex-col gap-[18px]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo5.png')}}" class="w-full h-full object-cover" alt="avatar">
-                            </div>
-                            <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Topikih Hoode Luicy</p>
-                                <p class="font-medium text-aktiv-grey">Orator Instructor</p>
-                            </div>
-                        </div>
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail5.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">OPEN</span>
-                            </div>
-                        </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Tue, 30 May 2024</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
-                                </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">Building Confidence and Mastering Sales Techniques: A Complete Guide for Sales Professionals to Achieve Outstanding Results</h3>
-                            <p class="font-medium text-aktiv-grey">Self Improvement</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
-                            <p class="font-medium text-aktiv-grey">/person</p>
-                        </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
-                    </div>
-                </div>
-            </a>
-            <a href="details.html" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
-                    <div class="flex flex-col gap-[18px]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 rounded-full flex shrink-0 overflow-hidden">
-                                <img src="{{asset('assets/images/photos/photo6.png')}}" class="w-full h-full object-cover" alt="avatar">
-                            </div>
-                            <div class="flex flex-col gap-[2px]">
-                                <p class="font-semibold text-lg leading-[27px]">Bociel Raez</p>
-                                <p class="font-medium text-aktiv-grey">Psychology Instructor</p>
-                            </div>
-                        </div>
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset('assets/images/thumbnails/thumbnail6.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">OPEN</span>
-                            </div>
-                        </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">Tue, 30 May 2024</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">09:30 AM</span>
-                                </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">Managing Stress and Mental Health in the Music Industry</h3>
-                            <p class="font-medium text-aktiv-grey">Self Improvement</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-[6px]">
-                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">Rp160.000</p>
-                            <p class="font-medium text-aktiv-grey">/person</p>
-                        </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
-                    </div>
-                </div>
-            </a>
+            @empty
+                <p>Belum ada workshop baru</p>
+            @endforelse
         </div>
     </div>
 </section>
@@ -542,7 +321,7 @@
         </div>
         <hr class="border-[#E6E7EB]">
         <div class="grid grid-cols-3 items-center">
-            <p class="flex font-medium text-aktiv-grey">© 2024 Workflow Copyright</p>
+            <p class="flex font-medium text-aktiv-grey">© 2024 Wahana Kendali Mutu Copyright</p>
             <ul class="flex items-center justify-center gap-6">
                 <li class="font-medium text-aktiv-grey text-nowrap hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
                     <a href="#">Workshop</a>

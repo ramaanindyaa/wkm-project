@@ -30,10 +30,14 @@ class BookingController extends Controller
         $validated = $request->validated();
         $validated['workshop_id'] = $workshop->id;
 
+        // Debug: Log the validated data
+        Log::info('Booking Store Validated Data:', $validated);
+
         try {
             $this->bookingService->storeBooking($validated);
             return redirect()->route('front.payment');
         } catch (\Exception $e) {
+            Log::error('Booking store failed: ' . $e->getMessage());
             return redirect()->back()->withErrors([
                 'error' => 'Unable to create booking. Please try again.'
             ]);
@@ -47,6 +51,8 @@ class BookingController extends Controller
         }
 
         $data = $this->bookingService->getBookingDetails();
+
+        // dd($data);
 
         if (!$data) {
             return redirect()->route('front.index');
@@ -87,7 +93,15 @@ class BookingController extends Controller
         $myBookingDetails = $this->bookingService->getMyBookingDetails($validated);
 
         if ($myBookingDetails) {
-            return view('booking.my_booking_details', compact('myBookingDetails'));
+
+            $subTotalAmount =  $myBookingDetails->workshop->price * $myBookingDetails->quantity;
+
+            $taxRate = 0.11; // 11% tax rate
+            $totalTax = $subTotalAmount * $taxRate;
+
+            $totalAmount = $subTotalAmount + $totalTax;
+
+            return view('booking.my_booking_details', compact('myBookingDetails', 'totalTax', 'subTotalAmount'));
         }
 
         return redirect()->route('front.check_booking')->withErrors(['error' => 'Transaction not found']);

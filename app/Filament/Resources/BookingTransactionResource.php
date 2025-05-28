@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Grid;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -196,6 +197,27 @@ class BookingTransactionResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function (BookingTransaction $record) {
+                        $record->update(['is_paid' => true]);
+                        $record->save();
+
+                        Notification::make()
+                            ->title('Booking Transaction Approved')
+                            ->success()
+                            ->body('The booking transaction has been approved successfully.')  
+                            ->send();
+                    })
+
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->icon('heroicon-o-check')
+                    ->visible(fn (BookingTransaction $record) => !$record->is_paid)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

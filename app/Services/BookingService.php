@@ -99,12 +99,24 @@ class BookingService
                 'booking_trx_id' => BookingTransaction::generateUniqueTrxId(),
             ]);
         
-            // Create workshop participants
-            foreach ($orderData['participants'] as $participant) {
+            // Check if participants data exists, if not create default participant data
+            if (isset($orderData['participants']) && is_array($orderData['participants'])) {
+                // Create workshop participants from stored data
+                foreach ($orderData['participants'] as $participant) {
+                    WorkshopParticipant::create([
+                        'name' => $participant['name'],
+                        'occupation' => $participant['occupation'],
+                        'email' => $participant['email'],
+                        'workshop_id' => $bookingTransaction->workshop_id,
+                        'booking_transaction_id' => $bookingTransaction->id,
+                    ]);
+                }
+            } else {
+                // Create single participant from main booking data
                 WorkshopParticipant::create([
-                    'name' => $participant['name'],
-                    'occupation' => $participant['occupation'],
-                    'email' => $participant['email'],
+                    'name' => $orderData['name'],
+                    'occupation' => 'Not specified', // Default value
+                    'email' => $orderData['email'],
                     'workshop_id' => $bookingTransaction->workshop_id,
                     'booking_transaction_id' => $bookingTransaction->id,
                 ]);
