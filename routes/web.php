@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\EventController; // Add this line
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
@@ -19,3 +20,10 @@ Route::get('/booking/{workshop:slug}', [BookingController::class, 'booking'])->n
 Route::post('/booking/{workshop:slug}', [BookingController::class, 'bookingStore'])->name('front.booking_store');
 
 Route::get('/booking/finished/{bookingTransaction}', [BookingController::class, 'bookingFinished'])->name('front.booking_finished');
+
+Route::get('/event/register/{event?}', [EventController::class, 'registerForm'])->name('event.register');
+Route::post('/event/register', [EventController::class, 'register'])->name('event.register.store');
+Route::get('/events', [FrontController::class, 'eventsList'])->name('front.events');
+Route::get('/event/{event}', [EventController::class, 'showEvent'])->name('event.show');
+Route::get('/category/{category:slug}', [FrontController::class, 'category'])->name('front.category');
+Route::get('/categories', [FrontController::class, 'allCategories'])->name('front.categories');

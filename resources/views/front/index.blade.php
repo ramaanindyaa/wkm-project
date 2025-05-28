@@ -51,15 +51,16 @@
 <section id="Categories" class="w-full max-w-[1280px] mx-auto px-[52px] mt-[100px]">
     <div class="flex flex-col gap-8">
         <div class="flex items-center justify-between">
-            <h2 class="font-Neue-Plak-bold text-[32px] leading-[44.54px] capitalize">We have several 🌟 <br> workshop categories</h2>
-            <a href="#" class="flex items-center rounded-full py-4 px-6 h-[56px] gap-3 bg-aktiv-orange">
-                <span class="font-semibold text-white">See All</span>
-                <span class="w-6 h-6 rounded-full bg-white text-center align-middle text-aktiv-orange font-bold">></span>
-            </a>
+            <h2 class="font-Neue-Plak-bold text-[32px] leading-[44.54px] capitalize">We have several 🌟 <br> categories</h2>
+            <div class="flex gap-4">
+                <a href="{{ route('front.categories') }}" class="flex items-center rounded-full py-4 px-6 h-[56px] gap-3 bg-aktiv-orange">
+                    <span class="font-semibold text-white">See All</span>
+                    <span class="w-6 h-6 rounded-full bg-white text-center align-middle text-aktiv-orange font-bold">></span>
+                </a>
+            </div>
         </div>
         <div class="grid grid-cols-4 gap-6">
-
-            @forelse ($categories as $itemCategory )
+            @forelse ($categories as $itemCategory)
             <a href="{{ route('front.category', $itemCategory->slug) }}" class="card">
                 <div class="flex items-center h-full rounded-3xl p-5 pr-1 gap-3 bg-white">
                     <img src="{{asset(Storage::url($itemCategory->icon))}}" class="w-[56px] h-[56px] flex shrink-0" alt="icon">
@@ -82,15 +83,22 @@
 <section id="Trending" class="w-full max-w-[1280px] mx-auto px-[52px] mt-[100px]">
     <div class="flex flex-col gap-8">
         <div class="flex items-center justify-between">
-            <h2 class="font-Neue-Plak-bold text-[32px] leading-[44.54px] capitalize">Highly sought-after 🔥<br>workshops are trending </h2>
-            <a href="#" class="flex items-center rounded-full py-4 px-6 h-[56px] gap-3 bg-aktiv-orange">
-                <span class="font-semibold text-white">See All</span>
-                <span class="w-6 h-6 rounded-full bg-white text-center align-middle text-aktiv-orange font-bold">></span>
-            </a>
+            <h2 class="font-Neue-Plak-bold text-[32px] leading-[44.54px] capitalize">Highly sought-after 🔥<br>activities are trending </h2>
+            
+            <!-- Tab links untuk toggle antara Events dan Workshops -->
+            <div class="flex gap-4">
+                <button id="workshopsTabBtn" class="flex items-center rounded-full py-4 px-6 h-[56px] gap-3 bg-aktiv-blue tab-active">
+                    <span class="font-semibold text-white">Workshops</span>
+                </button>
+                <button id="eventsTabBtn" class="flex items-center rounded-full py-4 px-6 h-[56px] gap-3 bg-aktiv-orange">
+                    <span class="font-semibold text-white">Events</span>
+                </button>
+            </div>
         </div>
-        <div class="grid grid-cols-3 gap-6">
-
-            @forelse ($newWorkshops as $itemNewWorkshop )
+        
+        <!-- Workshops Tab Content -->
+        <div id="workshopsTab" class="grid grid-cols-3 gap-6">
+            @forelse ($newWorkshops as $itemNewWorkshop)
             <a href="{{ route('front.details', $itemNewWorkshop->slug) }}" class="card">
                 <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
                     <div class="flex flex-col gap-[18px]">
@@ -164,6 +172,72 @@
             </a>
             @empty
                 <p>Belum ada workshop baru</p>
+            @endforelse
+        </div>
+        
+        <!-- Events Tab Content -->
+        <div id="eventsTab" class="grid grid-cols-3 gap-6" style="display: none;">
+            @forelse ($events as $event)
+            <a href="{{ route('event.show', $event->id) }}" class="card">
+                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
+                    <div class="flex flex-col gap-[18px]">
+                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
+                            <img src="{{asset($event->thumbnail ? Storage::url($event->thumbnail) : 'assets/images/thumbnails/thumbnail2.png')}}" class="w-full h-full object-cover" alt="thumbnail">
+                            @if ($event->is_active)
+                                @if ($event->has_started)
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
+                                    <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">STARTED</span>
+                                </div>
+                                @else
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
+                                    <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">OPEN</span>
+                                </div>
+                                @endif
+                            @else
+                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-red text-white z-10">
+                                    <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">CLOSED</span>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="card-detail flex flex-col gap-2">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1">
+                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('l, d F Y') }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ $event->time_at ? \Carbon\Carbon::parse($event->time_at)->format('H:i A') : '00:00' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
+                                {{ $event->nama }}
+                            </h3>
+                            <p class="font-medium text-aktiv-grey">
+                                {{ $event->lokasi }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-[6px]">
+                            <p class="font-semibold text-2xl leading-8 text-aktiv-red">
+                                Rp{{ number_format($event->price ?? 0, 0, ',', '.') }}
+                            </p>
+                            <p class="font-medium text-aktiv-grey">/person</p>
+                        </div>
+                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
+                    </div>
+                </div>
+            </a>
+            @empty
+                <p class="col-span-3 text-center py-10">Belum ada event</p>
             @endforelse
         </div>
     </div>
@@ -349,6 +423,70 @@
 </footer>
 @endsection
 
+@push('head')
+<style>
+    .tab-active {
+        position: relative;
+    }
+    .tab-active::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        background-color: white;
+        border-radius: 50%;
+    }
+    
+    /* Animasi untuk tab content */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in forwards;
+    }
+    
+    .fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+    
+    /* Animasi untuk tab buttons */
+    .btn-bounce {
+        animation: bounce 0.4s ease-in-out;
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+</style>
+@endpush
+
 @push('after-scripts')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
@@ -362,6 +500,80 @@
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
+    });
+    
+    // JavaScript untuk toggle tab Events dan Workshops dengan animasi
+    document.addEventListener('DOMContentLoaded', function() {
+        const workshopsTab = document.getElementById('workshopsTab');
+        const eventsTab = document.getElementById('eventsTab');
+        const workshopsTabBtn = document.getElementById('workshopsTabBtn');
+        const eventsTabBtn = document.getElementById('eventsTabBtn');
+        
+        // Fungsi untuk menampilkan tab workshops dengan animasi
+        workshopsTabBtn.addEventListener('click', function() {
+            // Tambahkan animasi pada button
+            this.classList.add('btn-bounce');
+            setTimeout(() => this.classList.remove('btn-bounce'), 400);
+            
+            // Jika workshops tab tidak ditampilkan, lakukan animasi
+            if (workshopsTab.style.display === 'none') {
+                // Animasi fade out untuk tab events
+                eventsTab.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    // Sembunyikan events tab setelah animasi fade out selesai
+                    eventsTab.style.display = 'none';
+                    eventsTab.classList.remove('fade-out');
+                    
+                    // Tampilkan workshops tab dengan animasi fade in
+                    workshopsTab.style.display = 'grid';
+                    workshopsTab.classList.add('fade-in');
+                    
+                    setTimeout(() => {
+                        workshopsTab.classList.remove('fade-in');
+                    }, 500);
+                }, 300);
+            }
+            
+            // Ubah warna tombol
+            workshopsTabBtn.classList.remove('bg-aktiv-orange');
+            workshopsTabBtn.classList.add('bg-aktiv-blue', 'tab-active');
+            eventsTabBtn.classList.remove('bg-aktiv-blue', 'tab-active');
+            eventsTabBtn.classList.add('bg-aktiv-orange');
+        });
+        
+        // Fungsi untuk menampilkan tab events dengan animasi
+        eventsTabBtn.addEventListener('click', function() {
+            // Tambahkan animasi pada button
+            this.classList.add('btn-bounce');
+            setTimeout(() => this.classList.remove('btn-bounce'), 400);
+            
+            // Jika events tab tidak ditampilkan, lakukan animasi
+            if (eventsTab.style.display === 'none') {
+                // Animasi fade out untuk tab workshops
+                workshopsTab.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    // Sembunyikan workshops tab setelah animasi fade out selesai
+                    workshopsTab.style.display = 'none';
+                    workshopsTab.classList.remove('fade-out');
+                    
+                    // Tampilkan events tab dengan animasi fade in
+                    eventsTab.style.display = 'grid';
+                    eventsTab.classList.add('fade-in');
+                    
+                    setTimeout(() => {
+                        eventsTab.classList.remove('fade-in');
+                    }, 500);
+                }, 300);
+            }
+            
+            // Ubah warna tombol
+            eventsTabBtn.classList.remove('bg-aktiv-orange');
+            eventsTabBtn.classList.add('bg-aktiv-blue', 'tab-active');
+            workshopsTabBtn.classList.remove('bg-aktiv-blue', 'tab-active');
+            workshopsTabBtn.classList.add('bg-aktiv-orange');
+        });
     });
 </script>
 @endpush

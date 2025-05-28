@@ -26,8 +26,13 @@ class Category extends Model
         $this->attributes['slug'] = Str::slug($value);
     }
 
-    public function workshops() : HasMany
+    public function workshops()
     {
         return $this->hasMany(Workshop::class);
     }
+	
+	public function getStatusAktifAttribute()
+	{
+		return $this->is_active;
+	}
 }
