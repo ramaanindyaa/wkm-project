@@ -340,4 +340,4 @@ Sistem ini dikembangkan khusus untuk PT Wahana Kendali Mutu dan dilisensikan di 
 
 ---
 
-**© 2024 PT Wahana Kendali Mutu. All rights reserved.**
+**© 2025 PT Wahana Kendali Mutu. All rights reserved.**
