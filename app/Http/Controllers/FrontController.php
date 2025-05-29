@@ -67,7 +67,8 @@ class FrontController extends Controller
                  ->orderBy('tanggal', 'asc')
                  ->paginate(9);
                  
-        return view('front.events', [
+        // Change the view from 'front.events' to 'event.index'
+        return view('event.index', [
             'events' => $events
         ]);
     }

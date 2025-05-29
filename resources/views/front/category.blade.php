@@ -107,6 +107,9 @@
                 @endforelse
             </div>
         </div>
+
+        <!-- If there are links to event listings -->
+        <a href="{{ route('event.index') }}" class="font-semibold text-aktiv-blue">Browse All Events</a>
     </div>
 </section>
 

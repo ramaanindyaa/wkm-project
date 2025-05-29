@@ -186,4 +186,51 @@ class EventController extends Controller
             'teamMembers' => $teamMembers
         ]);
     }
+
+    /**
+     * Display a listing of events with optional search functionality.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function index(Request $request)
+    {
+        // Start with a base query for active events
+        $query = Event::where('is_active', true);
+        
+        // Apply search filter if a search term is provided
+        if ($request->filled('search')) {
+            $searchTerm = trim($request->input('search'));
+            
+            // Log the search term for debugging
+            \Log::info('Search term: ' . $searchTerm);
+            
+            // Use raw SQL for more reliable searching
+            $query->where(function($q) use ($searchTerm) {
+                $likePattern = '%' . $searchTerm . '%';
+                $q->whereRaw('LOWER(nama) LIKE ?', [strtolower($likePattern)])
+                  ->orWhereRaw('LOWER(deskripsi) LIKE ?', [strtolower($likePattern)])
+                  ->orWhereRaw('LOWER(lokasi) LIKE ?', [strtolower($likePattern)]);
+                
+                // Log the generated SQL query with bindings
+                \Log::info('SQL query: ' . $q->toSql());
+                \Log::info('SQL bindings: ', $q->getBindings());
+            });
+            
+            // Add the search term to flash data for debugging in the view
+            session()->flash('debug_search', $searchTerm);
+        }
+        
+        // Apply default ordering
+        $query->orderBy('tanggal', 'asc');
+        
+        // Execute the query and get results
+        $events = $query->paginate(9)->withQueryString();
+        
+        // Log the count for debugging
+        \Log::info('Results count: ' . $events->total());
+        
+        // Return the view with the events
+        return view('event.index', compact('events'));
+    }
 }

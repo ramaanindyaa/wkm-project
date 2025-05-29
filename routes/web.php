@@ -23,7 +23,7 @@ Route::get('/booking/finished/{bookingTransaction}', [BookingController::class, 
 
 Route::get('/event/register/{event?}', [EventController::class, 'registerForm'])->name('event.register');
 Route::post('/event/register', [EventController::class, 'register'])->name('event.register.store');
-Route::get('/events', [FrontController::class, 'eventsList'])->name('front.events');
+Route::get('/events', [FrontController::class, 'eventsList'])->name('event.index');
 Route::get('/event/{event}', [EventController::class, 'showEvent'])->name('event.show');
 Route::get('/category/{category:slug}', [FrontController::class, 'category'])->name('front.category');
 Route::get('/categories', [FrontController::class, 'allCategories'])->name('front.categories');

@@ -15,6 +15,9 @@
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
             <a href="{{route('front.index')}}#Testimony">Testimony</a>
         </li>
+        <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
+            <a href="{{ route('event.index') }}" class="nav-link {{ request()->routeIs('event.index') ? 'active' : '' }}">Events</a>
+        </li>
     </ul>
     <a href="https://wa.me/your-phone-number" target="_blank" class="flex items-center rounded-full h-12 px-6 gap-[10px] w-fit shrink-0 bg-aktiv-green">
         <span class="font-semibold text-white">Contact CS</span>

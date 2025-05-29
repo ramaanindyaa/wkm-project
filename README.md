@@ -318,26 +318,6 @@ Kami menyambut kontribusi dari developer untuk meningkatkan sistem ini:
 -   XSS protection dengan Blade templating
 -   Secure file upload handling
 
-## 📞 Support & Contact
-
-Untuk pertanyaan atau dukungan teknis:
-
--   **Email**: tech@wahanakendalimutu.com
--   **Phone**: +62-21-1234-5678
--   **Website**: https://wahanakendalimutu.com
--   **Address**: Jakarta, Indonesia
-
-## 📄 License
-
-Sistem ini dikembangkan khusus untuk PT Wahana Kendali Mutu dan dilisensikan di bawah [MIT License](https://opensource.org/licenses/MIT).
-
-## 🙏 Acknowledgments
-
--   Laravel Framework Team
--   Filament Admin Panel
--   Tailwind CSS Team
--   Tim Development PT Wahana Kendali Mutu
-
 ---
 
 **© 2025 PT Wahana Kendali Mutu. All rights reserved.**
