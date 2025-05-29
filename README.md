@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://via.placeholder.com/400x100/ff6b35/ffffff?text=Wahana+Kendali+Mutu" width="400" alt="Wahana Kendali Mutu Logo">
+    <img src="https://wkm-ind.co.id/wp-content/uploads/2024/07/Wahana-Kendali-Mutu-2.png" width="400" alt="Wahana Kendali Mutu Logo">
 </p>
 
 <p align="center">
