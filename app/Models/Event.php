@@ -20,15 +20,15 @@ class Event extends Model
         'tanggal',
         'lokasi',
         'deskripsi',
-        'is_active', // Ganti status_aktif menjadi is_active
         'thumbnail',
         'venue_thumbnail',
         'bg_map',
         'price',
-        'is_open',
-        'has_started',
         'time_at',
         'end_date',
+        'is_open',
+        'has_started',
+        'is_active',
     ];
 
     /**
@@ -38,9 +38,9 @@ class Event extends Model
      */
     protected $casts = [
         'tanggal' => 'date',
-        'is_active' => 'boolean', // Ganti status_aktif menjadi is_active
         'is_open' => 'boolean',
         'has_started' => 'boolean',
+        'is_active' => 'boolean',
         'price' => 'decimal:2',
         'time_at' => 'datetime:H:i',
         'end_date' => 'date',
@@ -58,6 +58,16 @@ class Event extends Model
     }
 
     /**
+     * Mendapatkan semua registration transactions untuk event ini
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function registrationTransactions(): HasMany
+    {
+        return $this->hasMany(EventRegistrationTransaction::class);
+    }
+
+    /**
      * Mendapatkan semua benefits untuk event ini
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -65,6 +75,36 @@ class Event extends Model
     public function benefits(): HasMany
     {
         return $this->hasMany(EventBenefit::class);
+    }
+
+    /**
+     * Get total participants from both old and new system
+     */
+    public function getTotalParticipantsAttribute(): int
+    {
+        $oldParticipants = $this->participants()->count();
+        $newTransactions = $this->registrationTransactions()
+            ->where('payment_status', 'approved')
+            ->count();
+        
+        return $oldParticipants + $newTransactions;
+    }
+
+    /**
+     * Get total revenue from both systems
+     */
+    public function getTotalRevenueAttribute(): float
+    {
+        $newRevenue = $this->registrationTransactions()
+            ->where('payment_status', 'approved')
+            ->sum('total_amount');
+        
+        // Asumsi revenue dari sistem lama berdasarkan jumlah participant x price
+        $oldRevenue = $this->participants()
+            ->where('payment_status', 'approved')
+            ->count() * $this->price;
+        
+        return $oldRevenue + $newRevenue;
     }
 
     /**

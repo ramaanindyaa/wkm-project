@@ -80,7 +80,7 @@ class FrontController extends Controller
                   ->orderBy('tanggal', 'asc')
                   ->paginate(9);
                   
-            return view('front.events', [
+            return view('event.index', [
                 'events' => $items,
                 'type' => 'Events'
             ]);
