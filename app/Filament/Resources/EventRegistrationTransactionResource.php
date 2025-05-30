@@ -19,6 +19,9 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\View\View; // Add this import
+use Illuminate\Support\Collection; // Add this import
+use Filament\Notifications\Notification; // Add this import
 
 class EventRegistrationTransactionResource extends Resource
 {
@@ -57,7 +60,7 @@ class EventRegistrationTransactionResource extends Resource
                                     ->preload()
                                     ->required(),
                             ]),
-                    ]),
+                    ],),
 
                 Forms\Components\Section::make('Participant Information')
                     ->schema([
@@ -84,7 +87,7 @@ class EventRegistrationTransactionResource extends Resource
                                     ->label('Company')
                                     ->maxLength(255),
                             ]),
-                    ]),
+                    ],),
 
                 Forms\Components\Section::make('Registration Details')
                     ->schema([
@@ -134,7 +137,7 @@ class EventRegistrationTransactionResource extends Resource
                                     ->label('Payment Confirmed')
                                     ->default(false),
                             ]),
-                    ]),
+                    ],),
 
                 Forms\Components\Section::make('Payment Information')
                     ->schema([
@@ -165,7 +168,7 @@ class EventRegistrationTransactionResource extends Resource
                                 '4:3',
                                 '1:1',
                             ]),
-                    ]),
+                    ],),
 
                 Forms\Components\Section::make('Competition Documents')
                     ->schema([
@@ -203,6 +206,7 @@ class EventRegistrationTransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('registration_trx_id')
             ->columns([
                 Tables\Columns\TextColumn::make('registration_trx_id')
                     ->label('Transaction ID')
@@ -210,8 +214,7 @@ class EventRegistrationTransactionResource extends Resource
                     ->sortable()
                     ->copyable()
                     ->copyMessage('Transaction ID copied!')
-                    ->weight(FontWeight::Bold)
-                    ->color('primary'),
+                    ->copyMessageDuration(1500),
 
                 Tables\Columns\TextColumn::make('event.nama')
                     ->label('Event')
@@ -220,22 +223,26 @@ class EventRegistrationTransactionResource extends Resource
                     ->limit(30)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
-                        if (strlen($state) <= 30) {
-                            return null;
+                        if (strlen($state) > 30) {
+                            return $state;
                         }
-                        return $state;
+                        return null;
                     }),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Participant')
+                    ->label('Participant Name')
                     ->searchable()
                     ->sortable()
-                    ->weight(FontWeight::SemiBold),
+                    ->limit(25),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
-                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Phone')
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\BadgeColumn::make('kategori_pendaftaran')
@@ -265,7 +272,7 @@ class EventRegistrationTransactionResource extends Resource
                     }),
 
                 Tables\Columns\BadgeColumn::make('payment_status')
-                    ->label('Status')
+                    ->label('Payment Status')
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'approved',
@@ -278,54 +285,74 @@ class EventRegistrationTransactionResource extends Resource
                         default => $state,
                     }),
 
+                // Documents Status Column - ONLY visible for Competition records
+                Tables\Columns\BadgeColumn::make('documents_status')
+                    ->label('Documents')
+                    ->getStateUsing(function (EventRegistrationTransaction $record): string {
+                        if ($record->payment_status !== 'approved') {
+                            return 'payment_pending';
+                        }
+                        
+                        if ($record->documents_complete) {
+                            return 'complete';
+                        }
+                        
+                        return 'incomplete';
+                    })
+                    ->colors([
+                        'warning' => 'payment_pending',
+                        'success' => 'complete',
+                        'danger' => 'incomplete',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'payment_pending' => 'Pending Payment',
+                        'complete' => 'Complete',
+                        'incomplete' => 'Incomplete',
+                        default => $state,
+                    })
+                    ->tooltip(function (EventRegistrationTransaction $record): ?string {
+                        if ($record->payment_status !== 'approved') {
+                            return 'Documents can be uploaded after payment approval';
+                        }
+                        
+                        if ($record->documents_complete) {
+                            return 'All competition documents uploaded';
+                        }
+                        
+                        $missing = $record->missing_documents;
+                        return 'Missing: ' . implode(', ', $missing);
+                    })
+                    ->toggleable()
+                    ->toggledHiddenByDefault(false),
+
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Amount')
+                    ->label('Total Amount')
                     ->money('IDR')
-                    ->sortable()
-                    ->alignment('right')
-                    ->weight(FontWeight::Bold)
-                    ->color('success'),
-
-                Tables\Columns\IconColumn::make('is_paid')
-                    ->label('Paid')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('team_size')
-                    ->label('Team Size')
-                    ->getStateUsing(fn (EventRegistrationTransaction $record): int => $record->team_size)
-                    ->alignCenter()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\IconColumn::make('documents_complete')
-                    ->label('Docs Complete')
-                    ->boolean()
-                    ->getStateUsing(fn (EventRegistrationTransaction $record): bool => $record->documents_complete)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Registered At')
+                    ->label('Registration Date')
                     ->dateTime('d M Y, H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('event_id')
-                    ->label('Event')
+                Tables\Filters\SelectFilter::make('event_id')
                     ->relationship('event', 'nama')
+                    ->label('Event')
                     ->searchable()
                     ->preload(),
 
-                SelectFilter::make('payment_status')
+                Tables\Filters\SelectFilter::make('payment_status')
                     ->label('Payment Status')
                     ->options([
-                        'pending' => 'Pending',
+                        'pending' => 'Pending Verification',
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ])
                     ->native(false),
 
-                SelectFilter::make('kategori_pendaftaran')
+                Tables\Filters\SelectFilter::make('kategori_pendaftaran')
                     ->label('Category')
                     ->options([
                         'observer' => 'Observer',
@@ -334,7 +361,7 @@ class EventRegistrationTransactionResource extends Resource
                     ])
                     ->native(false),
 
-                SelectFilter::make('jenis_pendaftaran')
+                Tables\Filters\SelectFilter::make('jenis_pendaftaran')
                     ->label('Type')
                     ->options([
                         'individu' => 'Individual',
@@ -342,8 +369,9 @@ class EventRegistrationTransactionResource extends Resource
                     ])
                     ->native(false),
 
-                Filter::make('documents_incomplete')
-                    ->label('Documents Incomplete')
+                // Filter khusus untuk dokumen competition yang belum lengkap
+                Tables\Filters\Filter::make('documents_incomplete')
+                    ->label('Competition Documents Incomplete')
                     ->query(fn (Builder $query): Builder => $query->where('kategori_pendaftaran', 'kompetisi')
                         ->where('payment_status', 'approved')
                         ->where(function ($q) {
@@ -355,46 +383,211 @@ class EventRegistrationTransactionResource extends Resource
                                 ->orWhere('google_drive_lampiran', '')
                                 ->orWhere('google_drive_video_sebelum', '')
                                 ->orWhere('google_drive_video_sesudah', '');
-                        })),
+                        })
+                    )
+                    ->toggle()
+                    ->indicator('Competition: Documents Incomplete'),
+
+                // Filter khusus untuk dokumen competition yang sudah lengkap
+                Tables\Filters\Filter::make('documents_complete')
+                    ->label('Competition Documents Complete')
+                    ->query(fn (Builder $query): Builder => $query->where('kategori_pendaftaran', 'kompetisi')
+                        ->where('payment_status', 'approved')
+                        ->whereNotNull('google_drive_makalah')
+                        ->whereNotNull('google_drive_lampiran')
+                        ->whereNotNull('google_drive_video_sebelum')
+                        ->whereNotNull('google_drive_video_sesudah')
+                        ->where('google_drive_makalah', '!=', '')
+                        ->where('google_drive_lampiran', '!=', '')
+                        ->where('google_drive_video_sebelum', '!=', '')
+                        ->where('google_drive_video_sesudah', '!=', '')
+                    )
+                    ->toggle()
+                    ->indicator('Competition: Documents Complete'),
+
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')
+                            ->label('Registration From'),
+                        Forms\Components\DatePicker::make('created_until')
+                            ->label('Registration Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('approve_payment')
-                    ->label('Approve')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(fn (EventRegistrationTransaction $record) => $record->update([
-                        'payment_status' => 'approved',
-                        'is_paid' => true,
-                    ]))
-                    ->visible(fn (EventRegistrationTransaction $record): bool => $record->payment_status === 'pending'),
+                Tables\Actions\ViewAction::make()
+                    ->label('View Details'),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit'),
                 
-                Tables\Actions\Action::make('reject_payment')
-                    ->label('Reject')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->action(fn (EventRegistrationTransaction $record) => $record->update([
-                        'payment_status' => 'rejected',
-                        'is_paid' => false,
-                    ]))
-                    ->visible(fn (EventRegistrationTransaction $record): bool => $record->payment_status === 'pending'),
+                // Payment Actions Group
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('approve_payment')
+                        ->label('Approve Payment')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn (EventRegistrationTransaction $record): string => 
+                            'Approve Payment - ' . $record->registration_trx_id
+                        )
+                        ->modalDescription(function (EventRegistrationTransaction $record): string {
+                            if ($record->kategori_pendaftaran === 'kompetisi') {
+                                return 'Are you sure you want to approve this payment? Participant will be able to upload competition documents after approval.';
+                            }
+                            return 'Are you sure you want to approve this payment? Participant will receive confirmation notification.';
+                        })
+                        ->modalSubmitActionLabel('Approve Payment')
+                        ->action(function (EventRegistrationTransaction $record) {
+                            $record->update([
+                                'payment_status' => 'approved',
+                                'is_paid' => true
+                            ]);
+                            
+                            $message = 'Payment approved successfully for ' . $record->name;
+                            if ($record->kategori_pendaftaran === 'kompetisi') {
+                                $message .= '. Participant can now upload competition documents.';
+                            }
+                            
+                            Notification::make()
+                                ->title('Payment Approved')
+                                ->body($message)
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn (EventRegistrationTransaction $record): bool => 
+                            $record->payment_status === 'pending'
+                        ),
+
+                    Tables\Actions\Action::make('reject_payment')
+                        ->label('Reject Payment')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn (EventRegistrationTransaction $record): string => 
+                            'Reject Payment - ' . $record->registration_trx_id
+                        )
+                        ->modalDescription('Are you sure you want to reject this payment? This action can be reversed later if needed.')
+                        ->modalSubmitActionLabel('Reject Payment')
+                        ->form([
+                            Forms\Components\Textarea::make('rejection_reason')
+                                ->label('Rejection Reason (Optional)')
+                                ->placeholder('Please provide a reason for rejection...')
+                                ->rows(3)
+                        ])
+                        ->action(function (array $data, EventRegistrationTransaction $record) {
+                            $record->update([
+                                'payment_status' => 'rejected',
+                                'is_paid' => false
+                            ]);
+                            
+                            Notification::make()
+                                ->title('Payment Rejected')
+                                ->body('Payment rejected for ' . $record->name . '. Participant will be notified.')
+                                ->warning()
+                                ->send();
+                        })
+                        ->visible(fn (EventRegistrationTransaction $record): bool => 
+                            $record->payment_status === 'pending'
+                        ),
+
+                    Tables\Actions\Action::make('reset_payment')
+                        ->label('Reset to Pending')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn (EventRegistrationTransaction $record): string => 
+                            'Reset Payment Status - ' . $record->registration_trx_id
+                        )
+                        ->modalDescription('This will reset the payment status back to pending. Use this if you need to review the payment again.')
+                        ->modalSubmitActionLabel('Reset Status')
+                        ->action(function (EventRegistrationTransaction $record) {
+                            $record->update([
+                                'payment_status' => 'pending',
+                                'is_paid' => false
+                            ]);
+                            
+                            Notification::make()
+                                ->title('Payment Status Reset')
+                                ->body('Payment status reset to pending for ' . $record->name)
+                                ->info()
+                                ->send();
+                        })
+                        ->visible(fn (EventRegistrationTransaction $record): bool => 
+                            in_array($record->payment_status, ['approved', 'rejected'])
+                        ),
+                ])
+                ->label('Payment Actions')
+                ->icon('heroicon-o-currency-dollar')
+                ->color('primary')
+                ->button()
+                ->visible(fn (EventRegistrationTransaction $record): bool => 
+                    // Show payment actions for pending, approved, or rejected payments
+                    in_array($record->payment_status, ['pending', 'approved', 'rejected'])
+                ),
+                
+                // Competition Documents Action
+                Tables\Actions\Action::make('view_documents')
+                    ->label('View Documents')
+                    ->icon('heroicon-o-document-text')
+                    ->color('info')
+                    ->visible(fn (EventRegistrationTransaction $record): bool => 
+                        $record->kategori_pendaftaran === 'kompetisi' && 
+                        $record->payment_status === 'approved'
+                    )
+                    ->modalHeading(fn (EventRegistrationTransaction $record): string => 
+                        'Competition Documents - ' . $record->registration_trx_id
+                    )
+                    ->modalContent(function (EventRegistrationTransaction $record): View {
+                        return view('filament.pages.competition-documents', [
+                            'record' => $record
+                        ]);
+                    })
+                    ->modalFooterActions([
+                        Tables\Actions\Action::make('close')
+                            ->label('Close')
+                            ->color('gray')
+                            ->close(),
+                    ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('approve_selected')
-                        ->label('Approve Selected')
+                    
+                    // Bulk action untuk approve payment competition registrations
+                    Tables\Actions\BulkAction::make('approve_competition_payments')
+                        ->label('Approve Competition Payments')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->action(fn (\Illuminate\Database\Eloquent\Collection $records) => 
-                            $records->each(fn (EventRegistrationTransaction $record) => $record->update([
-                                'payment_status' => 'approved',
-                                'is_paid' => true,
-                            ]))),
+                        ->modalHeading('Approve Competition Payments')
+                        ->modalDescription('Are you sure you want to approve payment for selected competition registrations? Participants will be able to upload their documents after approval.')
+                        ->action(function (Collection $records) {
+                            $competitionRecords = $records->filter(function ($record) {
+                                return $record->kategori_pendaftaran === 'kompetisi' && 
+                                       $record->payment_status === 'pending';
+                            });
+                            
+                            $competitionRecords->each(function ($record) {
+                                $record->update(['payment_status' => 'approved']);
+                            });
+                            
+                            Notification::make()
+                                ->title('Success')
+                                ->body("Approved {$competitionRecords->count()} competition registrations. Participants can now upload documents.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

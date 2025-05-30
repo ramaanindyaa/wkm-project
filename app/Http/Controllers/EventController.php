@@ -203,8 +203,15 @@ class EventController extends Controller
             // Get event for price calculation
             $event = Event::findOrFail($validated['event_id']);
             
-            // Calculate total amount including PPN 11%
-            $totalAmount = $event->price * 1.11;
+            // Calculate total participants and amount
+            $totalParticipants = 1; // Main registrant
+            if ($registrationData['jenis_pendaftaran'] === 'tim' && isset($registrationData['team_members'])) {
+                $totalParticipants = count($registrationData['team_members']);
+            }
+            
+            // Calculate total amount: (price per person × participants) + PPN 11%
+            $subtotal = $event->price * $totalParticipants;
+            $totalAmount = $subtotal * 1.11;
             
             // Upload payment proof
             $proofPath = $request->file('payment_proof')->store('event-payments', 'public');
@@ -278,7 +285,10 @@ class EventController extends Controller
                 'event_id' => $event->id,
                 'user_ip' => request()->ip(),
                 'registration_type' => $registrationData['jenis_pendaftaran'],
-                'category' => $registrationData['kategori_pendaftaran']
+                'category' => $registrationData['kategori_pendaftaran'],
+                'total_participants' => $totalParticipants,
+                'subtotal' => $subtotal,
+                'total_amount' => $totalAmount
             ]);
             
             return redirect()->route('event.payment.success', $transaction->id)
@@ -381,29 +391,48 @@ class EventController extends Controller
      */
     public function updateDocuments(Request $request, EventRegistrationTransaction $transaction)
     {
-        // Validate that transaction is competition category and approved
-        if ($transaction->kategori_pendaftaran !== 'kompetisi' || $transaction->payment_status !== 'approved') {
+        // Validate that transaction exists and belongs to competition category
+        if ($transaction->kategori_pendaftaran !== 'kompetisi') {
             return redirect()->back()
-                ->withErrors(['error' => 'Document upload is only available for approved competition registrations.']);
+                ->withErrors(['error' => 'Document upload is only available for competition category registrations.']);
         }
 
+        // Validate that payment is approved
+        if ($transaction->payment_status !== 'approved') {
+            return redirect()->back()
+                ->withErrors(['error' => 'Document upload is only available for approved registrations. Your payment status: ' . $transaction->payment_status_label]);
+        }
+
+        // Validate the uploaded document links
         $validated = $request->validate([
-            'google_drive_makalah' => 'required|url|max:255',
-            'google_drive_lampiran' => 'required|url|max:255',
-            'google_drive_video_sebelum' => 'required|url|max:255',
-            'google_drive_video_sesudah' => 'required|url|max:255',
+            'google_drive_makalah' => 'required|url|max:500',
+            'google_drive_lampiran' => 'required|url|max:500',
+            'google_drive_video_sebelum' => 'required|url|max:500',
+            'google_drive_video_sesudah' => 'required|url|max:500',
         ], [
-            'google_drive_makalah.required' => 'Paper Google Drive link is required.',
-            'google_drive_makalah.url' => 'Please enter a valid Google Drive URL for paper.',
-            'google_drive_lampiran.required' => 'Attachment Google Drive link is required.',
-            'google_drive_lampiran.url' => 'Please enter a valid Google Drive URL for attachment.',
+            'google_drive_makalah.required' => 'Paper document Google Drive link is required.',
+            'google_drive_makalah.url' => 'Paper document must be a valid Google Drive URL.',
+            'google_drive_lampiran.required' => 'Attachment document Google Drive link is required.',
+            'google_drive_lampiran.url' => 'Attachment document must be a valid Google Drive URL.',
             'google_drive_video_sebelum.required' => 'Before video Google Drive link is required.',
-            'google_drive_video_sebelum.url' => 'Please enter a valid Google Drive URL for before video.',
+            'google_drive_video_sebelum.url' => 'Before video must be a valid Google Drive URL.',
             'google_drive_video_sesudah.required' => 'After video Google Drive link is required.',
-            'google_drive_video_sesudah.url' => 'Please enter a valid Google Drive URL for after video.',
+            'google_drive_video_sesudah.url' => 'After video must be a valid Google Drive URL.',
         ]);
 
         try {
+            // Additional validation: Check if URLs are actually Google Drive links
+            $googleDrivePattern = '/^https:\/\/(drive|docs)\.google\.com\//';
+            
+            foreach ($validated as $field => $url) {
+                if (!preg_match($googleDrivePattern, $url)) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors([$field => 'This must be a valid Google Drive URL (drive.google.com or docs.google.com).']);
+                }
+            }
+
+            // Update the transaction with document links
             $transaction->update([
                 'google_drive_makalah' => $validated['google_drive_makalah'],
                 'google_drive_lampiran' => $validated['google_drive_lampiran'],
@@ -411,15 +440,24 @@ class EventController extends Controller
                 'google_drive_video_sesudah' => $validated['google_drive_video_sesudah'],
             ]);
 
+            // Log successful document upload
+            Log::info('Competition documents updated successfully', [
+                'transaction_id' => $transaction->registration_trx_id,
+                'user_ip' => request()->ip(),
+                'documents' => array_keys($validated)
+            ]);
+
             return redirect()->back()
-                ->with('success', 'Competition documents updated successfully.');
+                ->with('success', 'Competition documents uploaded successfully! All your documents have been submitted for review.');
 
         } catch (\Exception $e) {
             Log::error('Error updating competition documents: ' . $e->getMessage());
+            Log::error('Transaction ID: ' . $transaction->registration_trx_id);
+            Log::error('Request data: ' . json_encode($request->all()));
             
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['error' => 'Failed to update documents. Please try again.']);
+                ->withErrors(['error' => 'Failed to upload documents. Please try again or contact support if the problem persists.']);
         }
     }
 }

@@ -176,18 +176,84 @@ class EventRegistrationTransaction extends Model
     }
 
     /**
-     * Check if documents are complete for competition category
+     * Check if all competition documents are uploaded
      */
     public function getDocumentsCompleteAttribute(): bool
     {
-        if ($this->kategori_pendaftaran === 'kompetisi' && $this->payment_status === 'approved') {
-            return !empty($this->google_drive_makalah) && 
-                   !empty($this->google_drive_lampiran) && 
-                   !empty($this->google_drive_video_sebelum) && 
-                   !empty($this->google_drive_video_sesudah);
+        // Only relevant for competition category
+        if ($this->kategori_pendaftaran !== 'kompetisi') {
+            return true; // Not applicable for non-competition
         }
         
-        return true; // Not applicable for non-competition categories
+        // Only relevant for approved registrations
+        if ($this->payment_status !== 'approved') {
+            return false; // Cannot upload documents if not approved
+        }
+        
+        // Check if all required documents are uploaded
+        return !empty($this->google_drive_makalah) && 
+               !empty($this->google_drive_lampiran) && 
+               !empty($this->google_drive_video_sebelum) && 
+               !empty($this->google_drive_video_sesudah);
+    }
+
+    /**
+     * Check if user can upload documents
+     */
+    public function getCanUploadDocumentsAttribute(): bool
+    {
+        return $this->kategori_pendaftaran === 'kompetisi' && 
+               $this->payment_status === 'approved';
+    }
+
+    /**
+     * Get documents upload status message
+     */
+    public function getDocumentsStatusMessageAttribute(): string
+    {
+        if ($this->kategori_pendaftaran !== 'kompetisi') {
+            return 'Document upload not required for this category.';
+        }
+        
+        if ($this->payment_status !== 'approved') {
+            return 'Documents can be uploaded after payment approval.';
+        }
+        
+        if ($this->documents_complete) {
+            return 'All competition documents have been uploaded successfully.';
+        }
+        
+        return 'Please upload all required competition documents.';
+    }
+
+    /**
+     * Get list of missing documents
+     */
+    public function getMissingDocumentsAttribute(): array
+    {
+        if ($this->kategori_pendaftaran !== 'kompetisi' || $this->payment_status !== 'approved') {
+            return [];
+        }
+        
+        $missing = [];
+        
+        if (empty($this->google_drive_makalah)) {
+            $missing[] = 'Paper Document (Makalah)';
+        }
+        
+        if (empty($this->google_drive_lampiran)) {
+            $missing[] = 'Attachment Document (Lampiran)';
+        }
+        
+        if (empty($this->google_drive_video_sebelum)) {
+            $missing[] = 'Before Innovation Video';
+        }
+        
+        if (empty($this->google_drive_video_sesudah)) {
+            $missing[] = 'After Innovation Video';
+        }
+        
+        return $missing;
     }
 
     /**
@@ -199,16 +265,38 @@ class EventRegistrationTransaction extends Model
     }
 
     /**
-     * Get total registration amount with calculation
+     * Get subtotal amount (before PPN)
      */
-    public function calculateTotalAmount(): float
+    public function getSubtotalAmountAttribute(): float
     {
         $basePrice = $this->event->price ?? 0;
         $teamSize = $this->team_size;
-        $subtotal = $basePrice * $teamSize;
-        $tax = $subtotal * 0.11; // PPN 11%
-        
-        return $subtotal + $tax;
+        return $basePrice * $teamSize;
+    }
+
+    /**
+     * Get PPN amount (11%)
+     */
+    public function getPpnAmountAttribute(): float
+    {
+        return $this->subtotal_amount * 0.11;
+    }
+
+    /**
+     * Calculate total registration amount with team size
+     */
+    public function calculateTotalAmount(): float
+    {
+        $subtotal = $this->subtotal_amount;
+        return $subtotal * 1.11; // Include PPN 11%
+    }
+
+    /**
+     * Verify if stored total_amount matches calculated amount
+     */
+    public function verifyTotalAmount(): bool
+    {
+        return abs($this->total_amount - $this->calculateTotalAmount()) < 0.01;
     }
 
     /**

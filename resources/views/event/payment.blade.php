@@ -116,25 +116,69 @@
                                     {{ $registrationData['jenis_pendaftaran'] ?? 'Individual' }}
                                 </p>
                             </div>
+                            
+                            @php
+                                // Calculate total participants
+                                $totalParticipants = 1; // Main registrant
+                                if ($registrationData['jenis_pendaftaran'] === 'tim' && !empty($registrationData['team_members'])) {
+                                    $totalParticipants = count($registrationData['team_members']);
+                                }
+                                
+                                // Calculate prices
+                                $pricePerPerson = $event->price;
+                                $subtotal = $pricePerPerson * $totalParticipants;
+                                $ppn = $subtotal * 0.11;
+                                $totalAmount = $subtotal + $ppn;
+                            @endphp
+                            
+                            <!-- Show participant count for team registration -->
+                            @if($registrationData['jenis_pendaftaran'] === 'tim')
                             <div class="flex items-center justify-between">
-                                <p class="font-medium text-aktiv-grey">Registration Fee</p>
+                                <p class="font-medium text-aktiv-grey">Number of Participants</p>
                                 <p class="font-semibold text-lg leading-[27px] text-right">
-                                    Rp{{ number_format($event->price, 0, ',', '.') }}
+                                    {{ $totalParticipants }} {{ $totalParticipants > 1 ? 'people' : 'person' }}
+                                </p>
+                            </div>
+                            @endif
+                            
+                            <div class="flex items-center justify-between">
+                                <p class="font-medium text-aktiv-grey">
+                                    Registration Fee 
+                                    @if($registrationData['jenis_pendaftaran'] === 'tim')
+                                        ({{ $totalParticipants }} × Rp{{ number_format($pricePerPerson, 0, ',', '.') }})
+                                    @endif
+                                </p>
+                                <p class="font-semibold text-lg leading-[27px] text-right">
+                                    Rp{{ number_format($subtotal, 0, ',', '.') }}
                                 </p>
                             </div>
                             <div class="flex items-center justify-between">
                                 <p class="font-medium text-aktiv-grey">PPN 11%</p>
                                 <p class="font-semibold text-lg leading-[27px] text-right">
-                                    Rp{{ number_format($event->price * 0.11, 0, ',', '.') }}
+                                    Rp{{ number_format($ppn, 0, ',', '.') }}
                                 </p>
                             </div>
                             <hr class="border-[#E6E7EB]">
                             <div class="flex items-center justify-between">
-                                <p class="font-medium text-aktiv-grey">Total Price</p>
-                                <p class="font-semibold text-lg leading-[27px] text-right text-aktiv-red"> 
-                                    Rp{{ number_format($event->price * 1.11, 0, ',', '.') }}
+                                <p class="font-semibold text-xl text-aktiv-grey">Total Amount</p>
+                                <p class="font-bold text-2xl leading-[36px] text-right text-aktiv-red"> 
+                                    Rp{{ number_format($totalAmount, 0, ',', '.') }}
                                 </p>
                             </div>
+                            
+                            <!-- Price breakdown info for team -->
+                            @if($registrationData['jenis_pendaftaran'] === 'tim')
+                            <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <img src="{{asset('assets/images/icons/info.svg')}}" class="w-4 h-4 text-blue-600" alt="info">
+                                    <span class="text-sm font-medium text-blue-800">Team Registration Pricing</span>
+                                </div>
+                                <p class="text-sm text-blue-700">
+                                    Each team member pays Rp{{ number_format($pricePerPerson, 0, ',', '.') }}. 
+                                    Total for {{ $totalParticipants }} members: Rp{{ number_format($subtotal, 0, ',', '.') }} + PPN 11%
+                                </p>
+                            </div>
+                            @endif
                         </div>
                     </div>
 

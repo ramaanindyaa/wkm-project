@@ -37,6 +37,7 @@ class EventRegistrationTestSeeder extends Seeder
         ]);
 
         // Test Transaction 2: Team Competition (Approved with documents)
+        $teamSize2 = 3; // Team dengan 3 anggota
         $transaction2 = EventRegistrationTransaction::create([
             'name' => 'Jane Smith',
             'email' => 'jane.smith@example.com',
@@ -46,7 +47,7 @@ class EventRegistrationTestSeeder extends Seeder
             'kategori_pendaftaran' => 'kompetisi',
             'jenis_pendaftaran' => 'tim',
             'payment_status' => 'approved',
-            'total_amount' => $events->first()->price * 3 * 1.11,
+            'total_amount' => $events->first()->price * $teamSize2 * 1.11, // 3 participants + PPN
             'customer_bank_name' => 'Mandiri',
             'customer_bank_account' => 'Jane Smith',
             'customer_bank_number' => '0987654321',
@@ -84,6 +85,7 @@ class EventRegistrationTestSeeder extends Seeder
         ]);
 
         // Test Transaction 3: Team Competition (Approved without documents)
+        $teamSize3 = 4; // Team dengan 4 anggota
         $transaction3 = EventRegistrationTransaction::create([
             'name' => 'Michael Wilson',
             'email' => 'michael.wilson@example.com',
@@ -93,7 +95,7 @@ class EventRegistrationTestSeeder extends Seeder
             'kategori_pendaftaran' => 'kompetisi',
             'jenis_pendaftaran' => 'tim',
             'payment_status' => 'approved',
-            'total_amount' => $events->first()->price * 4 * 1.11,
+            'total_amount' => $events->first()->price * $teamSize3 * 1.11, // 4 participants + PPN
             'customer_bank_name' => 'BNI',
             'customer_bank_account' => 'Michael Wilson',
             'customer_bank_number' => '5555666677',
