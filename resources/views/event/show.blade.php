@@ -277,7 +277,7 @@
                         @if($event->is_open && !$event->has_started)
                             <a href="{{ route('event.register', $event->id) }}" class="flex items-center justify-center mx-8 h-16 rounded-xl px-6 gap-[10px] bg-aktiv-orange font-semibold text-lg leading-[27px] text-white mb-8 hover:bg-aktiv-orange/90 transition-colors">
                                 <span>Register Now</span>
-                                <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-6 h-6" alt="icon">
+                                
                             </a>
                         @elseif($event->has_started)
                             <div class="flex items-center justify-center mx-8 h-16 rounded-xl px-6 gap-[10px] bg-[#E6E7EB] font-semibold text-lg leading-[27px] text-aktiv-grey mb-8">
@@ -297,7 +297,7 @@
                         
                         <!-- Check Registration Link -->
                         @if($event->is_open || $event->has_started)
-                        <div class="text-center mt-4 mx-8">
+                        <div class="text-center mt-4 mx-8 mb-8">
                             <p class="text-sm text-aktiv-grey mb-2">Already registered?</p>
                             <a href="{{ route('event.check_registration') }}" class="font-semibold text-aktiv-blue hover:text-aktiv-blue/80 transition-colors">
                                 Check Registration Status
