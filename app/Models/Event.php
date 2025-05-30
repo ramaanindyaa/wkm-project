@@ -47,17 +47,6 @@ class Event extends Model
     ];
 
     /**
-     * Mendapatkan semua peserta (participant) untuk event ini
-     * Relasi one-to-many: satu event memiliki banyak participant
-     * 
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function participants(): HasMany
-    {
-        return $this->hasMany(Participant::class);
-    }
-
-    /**
      * Mendapatkan semua registration transactions untuk event ini
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -82,12 +71,10 @@ class Event extends Model
      */
     public function getTotalParticipantsAttribute(): int
     {
-        $oldParticipants = $this->participants()->count();
-        $newTransactions = $this->registrationTransactions()
+        // Hanya hitung dari sistem baru
+        return $this->registrationTransactions()
             ->where('payment_status', 'approved')
             ->count();
-        
-        return $oldParticipants + $newTransactions;
     }
 
     /**
@@ -95,16 +82,10 @@ class Event extends Model
      */
     public function getTotalRevenueAttribute(): float
     {
-        $newRevenue = $this->registrationTransactions()
+        // Hanya hitung dari sistem baru
+        return $this->registrationTransactions()
             ->where('payment_status', 'approved')
             ->sum('total_amount');
-        
-        // Asumsi revenue dari sistem lama berdasarkan jumlah participant x price
-        $oldRevenue = $this->participants()
-            ->where('payment_status', 'approved')
-            ->count() * $this->price;
-        
-        return $oldRevenue + $newRevenue;
     }
 
     /**

@@ -45,7 +45,7 @@ Route::prefix('event')->name('event.')->group(function () {
 
 // Check registration routes untuk event transactions
 Route::get('/check-registration', [EventController::class, 'checkRegistration'])->name('event.check_registration');
-Route::post('/check-registration/details', [EventController::class, 'checkRegistrationDetails'])->name('event.check_registration_details');
+Route::match(['get', 'post'], '/check-registration/details', [EventController::class, 'checkRegistrationDetails'])->name('event.check_registration_details');
 
 // Document update route untuk competition category
 Route::post('/event/documents/update/{transaction}', [EventController::class, 'updateDocuments'])->name('event.documents.update');

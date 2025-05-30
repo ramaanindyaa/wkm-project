@@ -247,7 +247,8 @@ class EventResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ParticipantsRelationManager::class,
+            // HAPUS RELASI KE PARTICIPANT LAMA
+            // RelationManagers\ParticipantsRelationManager::class,
         ];
     }
 

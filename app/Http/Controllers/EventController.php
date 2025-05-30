@@ -357,33 +357,22 @@ class EventController extends Controller
      */
     public function checkRegistrationDetails(Request $request)
     {
-        $validated = $request->validate([
-            'registration_trx_id' => 'required|string|max:255',
-        ], [
-            'registration_trx_id.required' => 'Registration Transaction ID is required.',
-        ]);
-
-        try {
-            // Find transaction by registration_trx_id
-            $transaction = EventRegistrationTransaction::with(['event', 'teamMembers'])
-                ->where('registration_trx_id', $validated['registration_trx_id'])
-                ->first();
-
-            if (!$transaction) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['registration_trx_id' => 'Registration Transaction ID not found. Please check your Transaction ID.']);
-            }
-
-            return view('event.check_registration_details', compact('transaction'));
-
-        } catch (\Exception $e) {
-            Log::error('Error checking registration details: ' . $e->getMessage());
+        // Check if it's a GET or POST request
+        if ($request->isMethod('post')) {
+            // Process form submission
+            $validated = $request->validate([
+                'registration_trx_id' => 'required|exists:event_registration_transactions,registration_trx_id',
+            ]);
             
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'An error occurred while checking registration. Please try again.']);
+            // Fetch transaction
+            $transaction = EventRegistrationTransaction::where('registration_trx_id', $validated['registration_trx_id'])->firstOrFail();
+        } else {
+            // Direct GET access - either redirect or handle appropriately
+            return redirect()->route('event.check_registration');
         }
+        
+        // Rest of your code to display details
+        return view('event.check_registration_details', compact('transaction'));
     }
 
     /**

@@ -14,16 +14,16 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // Buat user admin untuk login ke panel Filament
         User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
         ]);
         
-        // Jalankan seeder untuk Event dan Participant
+        // HAPUS ATAU COMMENT SEEDER LAMA
         $this->call([
             EventSeeder::class,
-            ParticipantSeeder::class,
+            // ParticipantSeeder::class, // HAPUS INI
+            EventRegistrationTestSeeder::class, // GUNAKAN YANG BARU
         ]);
     }
 }
