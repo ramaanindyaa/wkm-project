@@ -103,7 +103,7 @@ Payment Confirmation {{ $workshop->name }}
                     </p>
                 </label>
             </section>
-            <form id="Form" method="POST" enctype="multipart/form-data" action="{{ route('front.payment_store') }}" class="flex flex-col w-[724px] gap-8">
+            <form id="Form" method="POST" enctype="multipart/form-data" action="{{ route('front.booking_payment_save') }}" class="flex flex-col w-[724px] gap-8">
             @csrf
                 <div class="flex flex-col rounded-3xl p-8 gap-8 bg-white">
                     <div class="flex flex-col gap-4">

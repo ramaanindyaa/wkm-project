@@ -15,13 +15,15 @@ Route::get('/category/{category}', [FrontController::class, 'category'])->name('
 Route::get('/details/{workshop}', [FrontController::class, 'details'])->name('front.details');
 
 // Booking routes - gunakan BookingController
-Route::get('/booking/{workshop}', [BookingController::class, 'booking'])->name('front.booking');
-Route::post('/booking/save/{workshop}', [BookingController::class, 'bookingStore'])->name('front.booking_save');
+// Put specific routes before parameterized routes
 Route::get('/booking/payment', [BookingController::class, 'payment'])->name('front.payment');
 Route::post('/booking/payment/save', [BookingController::class, 'paymentStore'])->name('front.booking_payment_save');
 Route::get('/booking/finished/{bookingTransaction}', [BookingController::class, 'bookingFinished'])->name('front.booking_finished');
 Route::get('/check-booking', [BookingController::class, 'checkBooking'])->name('front.check_booking');
 Route::post('/check-booking/details', [BookingController::class, 'checkBookingDetails'])->name('front.check_booking_details');
+// Then put the parameterized routes
+Route::get('/booking/{workshop}', [BookingController::class, 'booking'])->name('front.booking');
+Route::post('/booking/save/{workshop}', [BookingController::class, 'bookingStore'])->name('front.booking_save');
 
 // Event Routes - Updated untuk Transaction System
 Route::prefix('event')->name('event.')->group(function () {

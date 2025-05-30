@@ -100,7 +100,7 @@ Booking {{ $workshop->name }}
                     </p>
                 </label>
             </section>
-            <form id="Form" method="POST" action="{{ route('front.booking_store', $workshop->slug) }}" class="flex flex-col w-[724px] gap-8">
+            <form id="Form" method="POST" action="{{ route('front.booking_save', $workshop->slug) }}" class="flex flex-col w-[724px] gap-8">
                 @csrf
                 <div class="flex items-center rounded-3xl p-8 gap-4 bg-white">
                     <img src="{{asset('assets/images/icons/shield-tick.svg')}}" class="w-[62px] h-[62px] flex shrink-0" alt="icon">

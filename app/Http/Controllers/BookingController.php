@@ -35,12 +35,19 @@ class BookingController extends Controller
 
         try {
             $this->bookingService->storeBooking($validated);
-            return redirect()->route('front.payment');
+            
+            // Change this line to use the absolute URL
+            return redirect('/booking/payment');
+            
+            // Or you can use URL generation with the full path
+            // return redirect(url('/booking/payment'));
         } catch (\Exception $e) {
             Log::error('Booking store failed: ' . $e->getMessage());
+            Log::error('Exception trace: ' . $e->getTraceAsString());
+            
             return redirect()->back()->withErrors([
-                'error' => 'Unable to create booking. Please try again.'
-            ]);
+                'error' => 'Unable to create booking: ' . $e->getMessage()
+            ])->withInput();
         }
     }
 

@@ -60,4 +60,14 @@ class Workshop extends Model
     {
         return $this->belongsTo(WorkshopInstructor::class, 'workshop_instructor_id');
     }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }
