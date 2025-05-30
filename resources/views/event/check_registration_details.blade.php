@@ -415,7 +415,9 @@ Registration Details - {{ $transaction->registration_trx_id }}
         @if(session('success'))
         // Create success notification
         const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 z-50 p-4 bg-[#E6F7F0] border border-[#10B981] rounded-xl shadow-lg max-w-sm';
+        notification.className = 'fixed top-4 right-4 z-[9999] p-4 bg-[#E6F7F0] border border-[#10B981] rounded-xl shadow-lg max-w-sm transition-all duration-300';
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
         notification.innerHTML = `
             <div class="flex items-center gap-3">
                 <img src="{{asset('assets/images/icons/shield-tick.svg')}}" class="w-6 h-6 flex shrink-0" alt="success">
@@ -425,9 +427,16 @@ Registration Details - {{ $transaction->registration_trx_id }}
         
         document.body.appendChild(notification);
         
+        // Show with animation
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 100);
+        
         // Auto remove after 5 seconds
         setTimeout(() => {
-            notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
             setTimeout(() => notification.remove(), 500);
         }, 5000);
         @endif
@@ -487,6 +496,17 @@ Registration Details - {{ $transaction->registration_trx_id }}
         to {
             opacity: 0;
             transform: translateX(100%);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
     

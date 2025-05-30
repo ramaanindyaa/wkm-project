@@ -410,18 +410,7 @@ class EventController extends Controller
         ]);
 
         try {
-            // Additional validation: Check if URLs are actually Google Drive links
-            $googleDrivePattern = '/^https:\/\/(drive|docs)\.google\.com\//';
-            
-            foreach ($validated as $field => $url) {
-                if (!preg_match($googleDrivePattern, $url)) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors([$field => 'This must be a valid Google Drive URL (drive.google.com or docs.google.com).']);
-                }
-            }
-
-            // Update the transaction with document links
+            // Update ALL document fields
             $transaction->update([
                 'google_drive_makalah' => $validated['google_drive_makalah'],
                 'google_drive_lampiran' => $validated['google_drive_lampiran'],
@@ -432,13 +421,11 @@ class EventController extends Controller
             // Log successful document upload
             Log::info('Competition documents updated successfully', [
                 'transaction_id' => $transaction->registration_trx_id,
-                'user_ip' => request()->ip(),
                 'documents' => array_keys($validated)
             ]);
 
-            return redirect()->back()
-                ->with('success', 'Competition documents uploaded successfully! All your documents have been submitted for review.');
-
+            // Redirect to success page instead of going back
+            return redirect()->route('event.documents.success', $transaction->id);
         } catch (\Exception $e) {
             Log::error('Error updating competition documents: ' . $e->getMessage());
             Log::error('Transaction ID: ' . $transaction->registration_trx_id);
@@ -448,5 +435,21 @@ class EventController extends Controller
                 ->withInput()
                 ->withErrors(['error' => 'Failed to upload documents. Please try again or contact support if the problem persists.']);
         }
+    }
+    
+    /**
+     * Show document upload success page
+     */
+    public function documentUploadSuccess(EventRegistrationTransaction $transaction)
+    {
+        // Check if transaction belongs to the right category
+        if ($transaction->kategori_pendaftaran !== 'kompetisi') {
+            return redirect()->route('event.check_registration');
+        }
+        
+        // Load relationships for better performance
+        $transaction->load(['event', 'teamMembers']);
+        
+        return view('event.document-upload-success', compact('transaction'));
     }
 }

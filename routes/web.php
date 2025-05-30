@@ -49,3 +49,5 @@ Route::match(['get', 'post'], '/check-registration/details', [EventController::c
 
 // Document update route untuk competition category
 Route::post('/event/documents/update/{transaction}', [EventController::class, 'updateDocuments'])->name('event.documents.update');
+// Add this route after your existing event routes
+Route::get('/event/documents/success/{transaction}', [EventController::class, 'documentUploadSuccess'])->name('event.documents.success');
