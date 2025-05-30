@@ -198,12 +198,11 @@ Payment Success - {{ $participant->registration_trx_id }}
                     <p class="font-medium text-[#059669] ml-11">
                         You can check your registration status anytime using your Transaction ID on our check registration page.
                     </p>
-                    <div class="flex gap-3 ml-11">
-                        <a href="{{ route('event.check_registration') }}" class="flex items-center gap-2 font-semibold text-lg leading-[27px] px-4 py-2 bg-[#059669] text-white rounded-xl hover:bg-[#047857] transition-all duration-300">
-                            <img src="{{asset('assets/images/icons/search-normal.svg')}}" class="w-5 h-5" alt="search">
-                            Check Registration Status
-                        </a>
-                    </div>
+                    <!-- Link ke check registration -->
+                    <a href="{{ route('event.check_registration') }}" class="flex items-center gap-2 font-semibold text-lg leading-[27px] px-4 py-2 bg-[#059669] text-white rounded-xl hover:bg-[#047857] transition-all duration-300">
+                        <img src="{{asset('assets/images/icons/search-normal.svg')}}" class="w-5 h-5" alt="search">
+                        Check Registration Status
+                    </a>
                 </div>
 
                 <!-- Action Buttons -->

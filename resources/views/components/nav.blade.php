@@ -7,6 +7,10 @@
             <a href="{{route('front.check_booking')}}">View My Booking</a>
         </li>
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
+            <!-- Update navigation links untuk event check registration -->
+<a href="{{ route('event.check_registration') }}" class="nav-link">Check Event Registration</a>
+        </li>
+        <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">
             <a href="{{route('front.index')}}#Workshops">Workshop</a>
         </li>
         <li class="font-medium text-aktiv-grey hover:font-semibold hover:text-aktiv-orange transition-all duration-300">

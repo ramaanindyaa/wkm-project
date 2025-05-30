@@ -181,50 +181,40 @@
             <a href="{{ route('event.show', $event->id) }}" class="card">
                 <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
                     <div class="flex flex-col gap-[18px]">
-                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                            <img src="{{asset($event->thumbnail ? Storage::url($event->thumbnail) : 'assets/images/thumbnails/thumbnail2.png')}}" class="w-full h-full object-cover" alt="thumbnail">
-                            @if ($event->is_active)
-                                @if ($event->has_started)
-                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
-                                    <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
-                                    <span class="font-semibold">STARTED</span>
-                                </div>
-                                @else
-                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                    <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                    <span class="font-semibold">OPEN</span>
-                                </div>
-                                @endif
+                        <!-- Event Image -->
+                        <div class="flex w-full h-[200px] rounded-2xl bg-[#D9D9D9] overflow-hidden">
+                            @if($event->thumbnail)
+                                <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
                             @else
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-red text-white z-10">
-                                    <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
-                                    <span class="font-semibold">CLOSED</span>
-                            </div>
+                                <div class="w-full h-full bg-gradient-to-br from-aktiv-blue to-aktiv-orange flex items-center justify-center">
+                                    <span class="text-white text-2xl font-bold">{{ substr($event->nama, 0, 1) }}</span>
+                                </div>
                             @endif
                         </div>
-                        <div class="card-detail flex flex-col gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">
-                                        {{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('l, d F Y') }}
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                    <span class="font-medium text-aktiv-grey">
-                                        {{ $event->time_at ? \Carbon\Carbon::parse($event->time_at)->format('H:i A') : '00:00' }}
-                                    </span>
-                                </div>
-                            </div>
-                            <h3 class="title min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
-                                {{ $event->nama }}
-                            </h3>
+                        
+                        <!-- Event Date -->
+                        <div class="flex items-center gap-[6px]">
+                            <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
                             <p class="font-medium text-aktiv-grey">
-                                {{ $event->lokasi }}
+                                {{ $event->tanggal->format('d M Y') }}
+                                @if($event->time_at)
+                                    • {{ $event->time_at->format('H:i') }} WIB
+                                @endif
                             </p>
                         </div>
+                        
+                        <!-- Event Title -->
+                        <h3 class="min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
+                            {{ $event->nama }}
+                        </h3>
+                        
+                        <!-- Event Location -->
+                        <p class="font-medium text-aktiv-grey">
+                            {{ $event->lokasi }}
+                        </p>
                     </div>
+                    
+                    <!-- Price and CTA -->
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-[6px]">
                             <p class="font-semibold text-2xl leading-8 text-aktiv-red">
@@ -237,7 +227,13 @@
                 </div>
             </a>
             @empty
-                <p class="col-span-3 text-center py-10">Belum ada event</p>
+                <div class="col-span-3 flex flex-col items-center gap-4 py-16">
+                    <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-16 h-16 opacity-50" alt="no events">
+                    <div class="text-center">
+                        <h3 class="font-semibold text-xl text-aktiv-grey">No Events Available</h3>
+                        <p class="font-medium text-aktiv-grey">Check back later for upcoming events</p>
+                    </div>
+                </div>
             @endforelse
         </div>
     </div>

@@ -8,19 +8,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
 
 // Tambahkan route categories (jamak)
-Route::get('/categories', [FrontController::class, 'categories'])->name('front.categories');
+Route::get('/categories', [FrontController::class, 'allCategories'])->name('front.categories');
 
 Route::get('/category/{category}', [FrontController::class, 'category'])->name('front.category');
 
 Route::get('/details/{workshop}', [FrontController::class, 'details'])->name('front.details');
 
-Route::get('/booking/{workshop}', [FrontController::class, 'booking'])->name('front.booking');
-Route::post('/booking/save/{workshop}', [FrontController::class, 'booking_save'])->name('front.booking_save');
-Route::get('/booking/payment/{bookingTransaction}', [FrontController::class, 'booking_payment'])->name('front.booking_payment');
-Route::post('/booking/payment/save', [FrontController::class, 'booking_payment_save'])->name('front.booking_payment_save');
-Route::get('/booking/finished/{bookingTransaction:booking_trx_id}', [FrontController::class, 'booking_finished'])->name('front.booking_finished');
-Route::get('/check-booking', [FrontController::class, 'check_booking'])->name('front.check_booking');
-Route::post('/check-booking/details', [FrontController::class, 'check_booking_details'])->name('front.check_booking_details');
+// Booking routes - gunakan BookingController
+Route::get('/booking/{workshop}', [BookingController::class, 'booking'])->name('front.booking');
+Route::post('/booking/save/{workshop}', [BookingController::class, 'bookingStore'])->name('front.booking_save');
+Route::get('/booking/payment', [BookingController::class, 'payment'])->name('front.payment');
+Route::post('/booking/payment/save', [BookingController::class, 'paymentStore'])->name('front.booking_payment_save');
+Route::get('/booking/finished/{bookingTransaction}', [BookingController::class, 'bookingFinished'])->name('front.booking_finished');
+Route::get('/check-booking', [BookingController::class, 'checkBooking'])->name('front.check_booking');
+Route::post('/check-booking/details', [BookingController::class, 'checkBookingDetails'])->name('front.check_booking_details');
 
 // Event Routes - Updated untuk Transaction System
 Route::prefix('event')->name('event.')->group(function () {
@@ -38,11 +39,11 @@ Route::prefix('event')->name('event.')->group(function () {
     
     // Success page dengan transaction ID
     Route::get('/payment/success/{transaction}', [EventController::class, 'paymentSuccess'])->name('payment.success');
-    
-    // Document update for competition category
-    Route::post('/documents/update/{transaction}', [EventController::class, 'updateDocuments'])->name('documents.update');
 });
 
 // Check registration routes untuk event transactions
 Route::get('/check-registration', [EventController::class, 'checkRegistration'])->name('event.check_registration');
 Route::post('/check-registration/details', [EventController::class, 'checkRegistrationDetails'])->name('event.check_registration_details');
+
+// Document update route untuk competition category
+Route::post('/event/documents/update/{transaction}', [EventController::class, 'updateDocuments'])->name('event.documents.update');

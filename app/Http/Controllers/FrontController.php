@@ -29,14 +29,11 @@ class FrontController extends Controller
                         ->take(6)
                         ->get();
         
-        // UBAH QUERY EVENT - Hapus filter tanggal
+        // Get active events for homepage display
         $events = Event::where('is_active', true)
                  ->orderBy('tanggal', 'asc')
                  ->take(6)
                  ->get();
-        
-        // Tambahkan debug untuk cek jumlah events
-        // dd($events); // Uncomment untuk debug
         
         return view('front.index', [
             'categories' => $categories,

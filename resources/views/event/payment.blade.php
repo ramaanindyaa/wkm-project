@@ -1,7 +1,5 @@
 @extends('layout.app')
-@section('title')
-Payment Confirmation {{ $event->nama }}
-@endsection
+@section('title', 'Payment - ' . $event->nama)
 @section('content')
 
 <div class="h-[112px]">
@@ -14,153 +12,100 @@ Payment Confirmation {{ $event->nama }}
 
 <section id="Content" class="w-full max-w-[1280px] mx-auto px-[52px] mt-16 mb-[100px]">
     <div class="flex flex-col gap-16">
-        <!-- Header Breadcrumb -->
+        <!-- Header Section -->
         <div class="flex flex-col items-center gap-1">
-            <p class="font-bold text-[32px] leading-[48px] capitalize text-white">Event Registration Payment</p>
+            <p class="font-bold text-[32px] leading-[48px] capitalize text-white">Complete Payment</p>
             <div class="flex items-center gap-2 text-white">
                 <a href="{{ route('front.index') }}" class="font-medium">Homepage</a>
                 <span>></span>
                 <a href="{{ route('event.index') }}" class="font-medium">Events</a>
                 <span>></span>
-                <a href="{{ route('event.show', $event->id) }}" class="font-medium">Event Details</a>
+                <a href="{{ route('event.show', $event->id) }}" class="font-medium">{{ $event->nama }}</a>
                 <span>></span>
-                <a class="last:font-semibold">Payment Confirmation</a>
+                <span class="font-medium">Payment</span>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <main class="flex gap-8">
-            <!-- Sidebar - Event Details -->
-            <section id="Sidebar" class="group flex flex-col w-[420px] h-fit rounded-3xl p-8 bg-white">
-                <div class="flex flex-col gap-4">
-                    <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Event Details</h2>
-                    <div class="thumbnail-container relative h-[240px] rounded-xl bg-[#D9D9D9] overflow-hidden">
-                        <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="thumbnail">
+        <!-- Payment Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Payment Form -->
+            <div class="lg:col-span-2">
+                <form action="{{ route('event.payment.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-8">
+                    @csrf
+                    <input type="hidden" name="event_id" value="{{ $event->id }}">
+
+                    <!-- Registration Summary -->
+                    <div class="flex flex-col gap-6 rounded-3xl p-8 bg-white">
+                        <h2 class="font-Neue-Plak-bold text-2xl leading-[33px]">Registration Summary</h2>
                         
-                        <!-- Status Badge -->
-                        @if ($event->is_open)
-                            @if ($event->has_started)
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
-                                <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">ONGOING</span>
+                        <!-- Main Registrant -->
+                        <div class="flex flex-col gap-4">
+                            <h3 class="font-semibold text-lg text-aktiv-grey">Main Registrant</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex flex-col gap-1">
+                                    <p class="font-medium text-aktiv-grey">Full Name</p>
+                                    <p class="font-semibold text-lg">{{ $registrationData['name'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <p class="font-medium text-aktiv-grey">Email</p>
+                                    <p class="font-semibold text-lg">{{ $registrationData['email'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <p class="font-medium text-aktiv-grey">Phone</p>
+                                    <p class="font-semibold text-lg">{{ $registrationData['phone'] ?? 'N/A' }}</p>
+                                </div>
+                                @if(!empty($registrationData['company']))
+                                <div class="flex flex-col gap-1">
+                                    <p class="font-medium text-aktiv-grey">Company</p>
+                                    <p class="font-semibold text-lg">{{ $registrationData['company'] }}</p>
+                                </div>
+                                @endif
                             </div>
-                            @else
-                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                                <span class="font-semibold">OPEN</span>
+                        </div>
+
+                        <!-- Team Members (if team registration) -->
+                        @if($registrationData['jenis_pendaftaran'] === 'tim' && !empty($registrationData['team_members']))
+                        <div class="flex flex-col gap-4">
+                            <h3 class="font-semibold text-lg text-aktiv-grey">Team Members ({{ count($registrationData['team_members']) }} members)</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                @foreach($registrationData['team_members'] as $index => $member)
+                                <div class="flex items-center gap-3 p-4 rounded-lg bg-[#FBFBFB] border border-[#E6E7EB]">
+                                    <div class="flex w-8 h-8 shrink-0 rounded-full bg-aktiv-blue items-center justify-center">
+                                        @if(isset($member['is_ketua']) && $member['is_ketua'])
+                                        <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-4 h-4 text-white" alt="leader">
+                                        @else
+                                        <img src="{{asset('assets/images/icons/profile-circle.svg')}}" class="w-4 h-4 text-white" alt="member">
+                                        @endif
+                                    </div>
+                                    <div class="flex flex-col flex-1">
+                                        <p class="font-semibold text-lg leading-[27px]">
+                                            {{ $member['nama'] }}
+                                            @if(isset($member['is_ketua']) && $member['is_ketua'])
+                                            <span class="text-aktiv-orange font-medium text-lg">(Leader)</span>
+                                            @endif
+                                        </p>
+                                        <div class="flex items-center gap-4">
+                                            <p class="font-medium text-aktiv-grey">{{ $member['email'] }}</p>
+                                            <span class="text-aktiv-grey">•</span>
+                                            <p class="font-medium text-aktiv-grey">{{ $member['kontak'] }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
                             </div>
-                            @endif
+                        </div>
                         @endif
-                    </div>
-                    
-                    <!-- Event Card Details -->
-                    <div class="card-detail flex flex-col gap-2">
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1">
-                                <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                <span class="font-medium text-aktiv-grey">
-                                    {{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') }}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                <span class="font-medium text-aktiv-grey">
-                                    {{ $event->time_at ? \Carbon\Carbon::parse($event->time_at)->format('H:i A') : '00:00' }}
-                                </span>
-                            </div>
-                        </div>
-                        <h3 class="font-Neue-Plak-bold text-xl">
-                            {{ $event->nama }}
-                        </h3>
-                        <p class="font-medium text-aktiv-grey">
-                            {{ $event->lokasi }}
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Collapsible Event Information -->
-                <div id="closes-section" class="accordion flex flex-col gap-8 transition-all duration-300 mt-8 group-has-[:checked]:mt-0 group-has-[:checked]:!h-0 overflow-hidden">
-                    <!-- Event Organizer -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Event Organizer</h2>
-                        <div class="flex items-center gap-3 rounded-xl border border-[#E6E7EB] p-4">
-                            <div class="flex w-16 h-16 shrink-0 rounded-full overflow-hidden bg-aktiv-blue items-center justify-center">
-                                <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-10 h-10 text-white" alt="icon">
-                            </div>
-                            <div class="flex flex-col gap-[2px] flex-1">
-                                <p class="font-semibold text-lg leading-[27px]">
-                                    PT Wahana Kendali Mutu
-                                </p>
-                                <p class="font-medium text-aktiv-grey">
-                                    Quality Control Training Company
-                                </p>
-                            </div>
-                            <img src="{{asset('assets/images/icons/verify.svg')}}" class="flex w-[62px] h-[62px] shrink-0" alt="icon">
-                        </div>
-                    </div>
-
-                    <!-- Event Benefits -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">What You'll Get</h2>
-                        <div class="flex flex-col gap-6">
-                            @forelse ($event->benefits as $benefit)
-                            <div class="flex items-center gap-2">
-                                <img src="{{asset('assets/images/icons/tick-circle.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                                <p class="font-semibold text-lg leading-[27px]">{{ $benefit->name }}</p>
-                            </div>
-                            @empty
-                                <p class="font-medium text-aktiv-grey">No benefits information available.</p>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    <!-- Location Details -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Location Details</h2>
-                        <div class="flex flex-col gap-4 rounded-xl border border-[#E6E7EB] p-5 pb-[21px]">
-                            <div class="flex w-full h-[180px] rounded-xl overflow-hidden">
-                                <img src="{{ Storage::url($event->venue_thumbnail) }}" class="w-full h-full object-cover" alt="location">
-                            </div>
-                            <div class="flex flex-col gap-3">
-                                <p class="font-medium leading-[25.6px] text-aktiv-grey">
-                                    {{ $event->lokasi }}
-                                </p>
-                                <a href="http://maps.google.com/?q={{ urlencode($event->lokasi) }}" class="font-semibold text-aktiv-orange">View in Google Maps</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Show/Hide Toggle Button -->
-                <label class="group mt-8">
-                    <input type="checkbox" class="hidden">
-                    <p class="before:content-['Show_Less'] group-has-[:checked]:before:content-['Show_More'] before:font-semibold before:text-lg before:leading-[27px] flex items-center justify-center gap-[6px]">
-                        <img src="{{asset('assets/images/icons/arrow-up.svg')}}" class="w-6 h-6 group-has-[:checked]:rotate-180 transition-all duration-300" alt="icon">
-                    </p>
-                </label>
-            </section>
-
-            <!-- Payment Form -->
-            <form id="Form" method="POST" enctype="multipart/form-data" action="{{ route('event.payment.store') }}" class="flex flex-col w-[724px] gap-8">
-                @csrf
-                <input type="hidden" name="event_id" value="{{ $event->id }}">
-                
-                <!-- Security Message -->
-                <div class="flex items-center rounded-3xl p-8 gap-4 bg-white">
-                    <img src="{{asset('assets/images/icons/shield-tick.svg')}}" class="w-[62px] h-[62px] flex shrink-0" alt="icon">
-                    <div class="flex flex-col gap-[2px]">
-                        <p class="font-semibold text-lg leading-[27px]">Safe Security Pro Max+</p>
-                        <p class="font-medium text-aktiv-grey">Don't worry, Your data will be kept private and protected.</p>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col rounded-3xl p-8 gap-8 bg-white">
-                    <!-- Payment Details Section -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Registration Details</h2>
-                        <div class="flex flex-col rounded-xl border border-[#E6E7EB] p-5 gap-4">
+                        <!-- Registration Details -->
+                        <div class="flex flex-col gap-4 p-6 rounded-xl bg-[#F8FAFC] border border-[#E6E7EB]">
                             <div class="flex items-center justify-between">
-                                <p class="font-medium text-aktiv-grey">Registration Type</p>
+                                <p class="font-medium text-aktiv-grey">Event Name</p>
+                                <p class="font-semibold text-lg leading-[27px] text-right">
+                                    {{ $event->nama }}
+                                </p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <p class="font-medium text-aktiv-grey">Registration Category</p>
                                 <p class="font-semibold text-lg leading-[27px] text-right capitalize">
                                     {{ $registrationData['kategori_pendaftaran'] ?? 'Observer' }}
                                 </p>
@@ -194,43 +139,61 @@ Payment Confirmation {{ $event->nama }}
                     </div>
 
                     <!-- Bank Account Section -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Your Bank Account</h2>
+                    <div class="flex flex-col gap-6 rounded-3xl p-8 bg-white">
+                        <h2 class="font-Neue-Plak-bold text-2xl leading-[33px]">Your Bank Account</h2>
                         <div class="flex flex-col gap-6">
                             <label class="flex flex-col gap-4">
                                 <p class="font-medium text-aktiv-grey">Select Bank Type</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
                                     <img src="{{asset('assets/images/icons/bank.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
                                     <img src="{{asset('assets/images/icons/bank-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
-                                    <input type="text" name="customer_bank_name" id="bankname" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="What is the name of the bank you use?" required>
+                                    <select name="customer_bank_name" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" required>
+                                        <option value="" disabled {{ old('customer_bank_name') ? '' : 'selected' }}>Choose your bank</option>
+                                        <option value="BCA" {{ old('customer_bank_name') == 'BCA' ? 'selected' : '' }}>Bank Central Asia (BCA)</option>
+                                        <option value="BNI" {{ old('customer_bank_name') == 'BNI' ? 'selected' : '' }}>Bank Negara Indonesia (BNI)</option>
+                                        <option value="BRI" {{ old('customer_bank_name') == 'BRI' ? 'selected' : '' }}>Bank Rakyat Indonesia (BRI)</option>
+                                        <option value="Mandiri" {{ old('customer_bank_name') == 'Mandiri' ? 'selected' : '' }}>Bank Mandiri</option>
+                                        <option value="Other" {{ old('customer_bank_name') == 'Other' ? 'selected' : '' }}>Other Bank</option>
+                                    </select>
                                 </div>
+                                @error('customer_bank_name')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </label>
+
                             <label class="flex flex-col gap-4">
-                                <p class="font-medium text-aktiv-grey">Full Name</p>
+                                <p class="font-medium text-aktiv-grey">Account Holder Name</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
                                     <img src="{{asset('assets/images/icons/profile-circle.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
                                     <img src="{{asset('assets/images/icons/profile-circle-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
-                                    <input type="text" name="customer_bank_account" id="fullname" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Under whose name is this bank account?" required>
+                                    <input type="text" name="customer_bank_account" value="{{ old('customer_bank_account') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Full name as per bank account" required>
                                 </div>
+                                @error('customer_bank_account')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </label>
+
                             <label class="flex flex-col gap-4">
-                                <p class="font-medium text-aktiv-grey">Bank account number</p>
+                                <p class="font-medium text-aktiv-grey">Account Number</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
-                                    <img src="{{asset('assets/images/icons/card-edit.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/card-edit-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
-                                    <input type="text" name="customer_bank_number" id="banknumber" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="What is the bank account number?" required>
+                                    <img src="{{asset('assets/images/icons/card.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                    <img src="{{asset('assets/images/icons/card-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                    <input type="text" name="customer_bank_number" value="{{ old('customer_bank_number') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Bank account number" required>
                                 </div>
+                                @error('customer_bank_number')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </label>
                         </div>
                     </div>
 
-                    <!-- Transfer Details Section -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Transfer Details</h2>
-                        <div class="flex flex-col rounded-xl border border-[#E6E7EB]">
-                            <p class="text-center py-7 px-8 w-full font-semibold text-lg leading-[27px]">Transfer Bank</p>
-                            <hr class="border-[#E6E7EB]">
-                            <div class="flex flex-col py-5 px-8 gap-8">
+                    <!-- Company Bank Accounts -->
+                    <div class="flex flex-col gap-6 rounded-3xl p-8 bg-white">
+                        <h2 class="font-Neue-Plak-bold text-2xl leading-[33px]">Transfer to Company Account</h2>
+                        <p class="font-medium text-aktiv-grey">Please transfer the exact amount to one of our company accounts below:</p>
+                        
+                        <div class="flex flex-col gap-6 rounded-xl border border-[#E6E7EB] p-6">
+                            <div class="flex flex-col gap-6">
                                 <!-- BCA Bank -->
                                 <div class="flex items-center justify-between gap-8">
                                     <div class="flex w-[78px] h-[53px] shrink-0 overflow-hidden">
@@ -254,7 +217,7 @@ Payment Confirmation {{ $event->nama }}
                                     </div>
                                     <button type="button" class="align-middle font-semibold text-lg leading-[27px] text-aktiv-orange copy-btn" data-account="1200 1935 0009">Copy</button>
                                 </div>
-                                
+
                                 <!-- BRI Bank -->
                                 <div class="flex items-center justify-between gap-8">
                                     <div class="flex w-[78px] h-[53px] shrink-0 overflow-hidden">
@@ -271,27 +234,81 @@ Payment Confirmation {{ $event->nama }}
                     </div>
 
                     <!-- Upload Proof Section -->
-                    <div class="flex flex-col gap-4">
-                        <h2 class="font-Neue-Plak-bold text-xl leading-[27.5px]">Upload Proof of Payment</h2>
+                    <div class="flex flex-col gap-6 rounded-3xl p-8 bg-white">
+                        <h2 class="font-Neue-Plak-bold text-2xl leading-[33px]">Upload Payment Proof</h2>
                         <label class="flex flex-col gap-4">
-                            <div class="group flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
-                                <div class="flex items-center w-full gap-2 text-aktiv-grey group-has-[:valid]:text-aktiv-black transition-all duration-300">
-                                    <img src="{{asset('assets/images/icons/gallery.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/gallery-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
-                                    <p id="Upload-btn" class="font-medium text-lg leading-[27px] group-has-[:valid]:font-semibold">Upload payment proof</p>   
-                                </div>
-                                <p class="font-semibold text-lg leading-[27px] text-aktiv-black text-nowrap">Browse file</p>        
-                                <input type="file" name="proof" id="Proof" class="peer absolute -z-10 opacity-0 w-[10px]" accept="image/*,.pdf" required>
+                            <p class="font-medium text-aktiv-grey">Payment Receipt/Screenshot *</p>
+                            <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
+                                <img src="{{asset('assets/images/icons/document-upload.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                <img src="{{asset('assets/images/icons/document-upload-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                <input type="file" name="payment_proof" accept="image/*,.pdf" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" required>
                             </div>
-                            <p class="font-medium text-aktiv-grey text-sm">Accepted formats: JPG, PNG, PDF (Max: 2MB)</p>
+                            <p class="text-sm text-aktiv-grey">Accepted formats: JPG, PNG, PDF (Max: 5MB)</p>
+                            @error('payment_proof')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </label>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full rounded-xl h-16 px-6 text-center bg-aktiv-orange font-semibold text-lg leading-[27px] text-white hover:bg-aktiv-orange/90 transition-colors">Complete Registration</button>
+                    <button type="submit" class="w-full rounded-xl h-16 px-6 text-center bg-aktiv-orange font-semibold text-lg leading-[27px] text-white hover:bg-aktiv-orange/90 transition-colors">Submit Payment</button>
+                </form>
+            </div>
+
+            <!-- Event Details Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-8 flex flex-col gap-6 rounded-3xl p-8 bg-white shadow-lg">
+                    <h3 class="font-Neue-Plak-bold text-xl">Event Details</h3>
+                    
+                    <!-- Event Image -->
+                    <div class="flex w-full h-[200px] rounded-xl overflow-hidden">
+                        @if($event->thumbnail)
+                            <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-aktiv-blue to-aktiv-orange flex items-center justify-center">
+                                <span class="text-white text-4xl font-bold">{{ substr($event->nama, 0, 1) }}</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Event Info -->
+                    <div class="flex flex-col gap-4">
+                        <h4 class="font-semibold text-lg">{{ $event->nama }}</h4>
+                        
+                        <div class="flex items-center gap-3">
+                            <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
+                            <span class="font-medium text-aktiv-grey">{{ $event->tanggal->format('d F Y') }}</span>
+                        </div>
+
+                        @if($event->time_at)
+                        <div class="flex items-center gap-3">
+                            <img src="{{asset('assets/images/icons/clock.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
+                            <span class="font-medium text-aktiv-grey">{{ $event->time_at->format('H:i') }} WIB</span>
+                        </div>
+                        @endif
+
+                        <div class="flex items-center gap-3">
+                            <img src="{{asset('assets/images/icons/location.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
+                            <span class="font-medium text-aktiv-grey">{{ $event->lokasi }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Reminder -->
+                    <div class="flex flex-col gap-3 p-4 rounded-xl bg-[#FDF6E4] border border-[#F59E0B]">
+                        <div class="flex items-center gap-3">
+                            <img src="{{asset('assets/images/icons/warning.svg')}}" class="w-5 h-5 text-amber-600" alt="warning">
+                            <h4 class="font-semibold text-amber-800">Payment Reminder</h4>
+                        </div>
+                        <ul class="text-sm text-amber-700 space-y-1 ml-8">
+                            <li>• Transfer exact amount including PPN</li>
+                            <li>• Upload clear payment receipt</li>
+                            <li>• Payment will be verified within 1x24 hours</li>
+                            <li>• Keep your transaction ID for reference</li>
+                        </ul>
+                    </div>
                 </div>
-            </form>
-        </main>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -299,13 +316,7 @@ Payment Confirmation {{ $event->nama }}
 
 @push('after-scripts')
 <script>
-    // Define the base URL for assets using the current URL path to public directory
-    const assetBaseUrl = "{{ url('/') }}/";
-</script>
-<script src="{{ asset('js/accodion.js') }}"></script>
-<script src="{{ asset('js/upload-file.js') }}"></script>
-<script>
-    // Copy bank account number functionality
+    // Copy account number functionality
     document.addEventListener('DOMContentLoaded', function() {
         const copyButtons = document.querySelectorAll('.copy-btn');
         
@@ -313,32 +324,37 @@ Payment Confirmation {{ $event->nama }}
             button.addEventListener('click', function() {
                 const accountNumber = this.getAttribute('data-account');
                 
-                // Copy to clipboard
-                navigator.clipboard.writeText(accountNumber).then(function() {
-                    // Show success feedback
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-                    button.classList.add('text-aktiv-green');
+                navigator.clipboard.writeText(accountNumber).then(() => {
+                    // Show copy confirmation
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.style.color = '#059669';
                     
                     setTimeout(() => {
-                        button.textContent = originalText;
-                        button.classList.remove('text-aktiv-green');
+                        this.textContent = originalText;
+                        this.style.color = '';
                     }, 2000);
-                }).catch(function(err) {
-                    console.error('Could not copy text: ', err);
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = accountNumber;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    // Show copy confirmation
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.style.color = '#059669';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.color = '';
+                    }, 2000);
                 });
             });
         });
     });
 </script>
 @endpush
-
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif

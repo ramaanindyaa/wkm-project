@@ -1,8 +1,7 @@
 @extends('layout.app')
-@section('title')
-Events List - PT Wahana Kendali Mutu
-@endsection
+@section('title', 'All Events')
 @section('content')
+
 <div class="h-[112px]">
     <x-nav />
 </div>
@@ -11,106 +10,47 @@ Events List - PT Wahana Kendali Mutu
     <div class="absolute w-full h-[300px] bg-[linear-gradient(0deg,#4EB6F5_0%,#5B8CE9_100%)] -z-10"></div>
 </div>
 
-<section id="EventsHeader" class="w-full max-w-[1280px] mx-auto px-[52px] mt-16 mb-[100px]">
+<section id="Content" class="w-full max-w-[1280px] mx-auto px-[52px] mt-16 mb-[100px]">
     <div class="flex flex-col gap-16">
         <!-- Header Section -->
         <div class="flex flex-col items-center gap-1">
-            <p class="font-bold text-[32px] leading-[48px] capitalize text-white">Available Events</p>
+            <p class="font-bold text-[32px] leading-[48px] capitalize text-white">All Events</p>
             <div class="flex items-center gap-2 text-white">
                 <a href="{{ route('front.index') }}" class="font-medium">Homepage</a>
                 <span>></span>
-                <a class="last:font-semibold">Events</a>
-            </div>
-        </div>
-
-        <!-- Search Section -->
-        <div class="flex flex-col gap-8 bg-white rounded-2xl p-8">
-            <!-- Search Bar -->
-            <form method="GET" action="{{ route('event.index') }}" class="search-form">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center flex-1 rounded-xl p-4 bg-[#FBFBFB] overflow-hidden">
-                        <img src="{{asset('assets/images/icons/search-normal.svg')}}" class="w-6 h-6 flex shrink-0" alt="search">
-                        <input type="text" name="search" value="{{ request()->get('search') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-medium ml-2 search-input" placeholder="Search for events...">
-                    </div>
-                    <button type="submit" class="flex items-center justify-center h-16 px-8 rounded-xl bg-aktiv-blue text-white font-semibold">
-                        Search
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Debug Info (Local Environment Only) -->
-        @if(app()->environment('local') && session('debug_search'))
-        <div class="bg-yellow-100 p-4 rounded-lg mb-4">
-            <p class="font-semibold">Debug Info:</p>
-            <p>Search term: "{{ session('debug_search') }}"</p>
-            <p>Results: {{ $events->total() }}</p>
-        </div>
-        @endif
-
-        <!-- Events Counter and View Toggle -->
-        <div class="flex items-center justify-between">
-            <h2 class="font-Neue-Plak-bold text-2xl leading-[33.6px]">Found {{ $events->count() }} Events</h2>
-            
-            <div class="flex items-center gap-2">
-                <button class="p-2 rounded-lg bg-aktiv-blue" id="gridViewBtn">
-                    <img src="{{asset('assets/images/icons/grid.svg')}}" class="w-6 h-6" alt="grid view">
-                </button>
-                <button class="p-2 rounded-lg" id="listViewBtn">
-                    <img src="{{asset('assets/images/icons/list.svg')}}" class="w-6 h-6" alt="list view">
-                </button>
+                <span class="font-medium">Events</span>
             </div>
         </div>
 
         <!-- Events Grid -->
-        <div class="grid grid-cols-3 gap-6" id="eventsContainer">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($events as $event)
-            <a href="{{ route('event.show', $event->id) }}" class="flex flex-col rounded-2xl overflow-hidden bg-white hover:shadow-lg transition-all duration-300">
-                <!-- Event Thumbnail -->
-                <div class="relative flex w-full h-[240px] overflow-hidden bg-[#D9D9D9]">
-                    <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
-                    
-                    <!-- Status Badge -->
-                    @if ($event->is_open)
-                        @if ($event->has_started)
-                        <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
-                            <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
-                            <span class="font-semibold">ONGOING</span>
-                        </div>
-                        @else
-                        <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
-                            <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
-                            <span class="font-semibold">OPEN</span>
-                        </div>
-                        @endif
-                    @else
-                    <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-red text-white z-10">
-                        <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
-                        <span class="font-semibold">CLOSED</span>
-                    </div>
-                    @endif
-                </div>
-                
-                <!-- Event Details -->
-                <div class="flex flex-col gap-4 p-6">
-                    <div class="flex flex-col gap-3">
-                        <!-- Date and Time -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-1">
-                                <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-4 h-4 flex shrink-0" alt="icon">
-                                <span class="font-medium text-sm text-aktiv-grey">
-                                    {{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') }}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-4 h-4 flex shrink-0" alt="icon">
-                                <span class="font-medium text-sm text-aktiv-grey">
-                                    {{ $event->time_at ? \Carbon\Carbon::parse($event->time_at)->format('H:i A') : '00:00' }}
-                                </span>
-                            </div>
+            <a href="{{ route('event.show', $event->id) }}" class="card">
+                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
+                    <div class="flex flex-col gap-[18px]">
+                        <!-- Event Image -->
+                        <div class="flex w-full h-[200px] rounded-2xl bg-[#D9D9D9] overflow-hidden">
+                            @if($event->thumbnail)
+                                <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-aktiv-blue to-aktiv-orange flex items-center justify-center">
+                                    <span class="text-white text-2xl font-bold">{{ substr($event->nama, 0, 1) }}</span>
+                                </div>
+                            @endif
                         </div>
                         
-                        <!-- Event Name -->
+                        <!-- Event Date -->
+                        <div class="flex items-center gap-[6px]">
+                            <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                            <p class="font-medium text-aktiv-grey">
+                                {{ $event->tanggal->format('d M Y') }}
+                                @if($event->time_at)
+                                    • {{ $event->time_at->format('H:i') }} WIB
+                                @endif
+                            </p>
+                        </div>
+                        
+                        <!-- Event Title -->
                         <h3 class="min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
                             {{ $event->nama }}
                         </h3>
@@ -136,89 +76,23 @@ Events List - PT Wahana Kendali Mutu
                 </div>
             </a>
             @empty
-            <!-- Empty State -->
-            <div class="col-span-3 flex flex-col items-center justify-center py-16">
-                <img src="{{asset('assets/images/icons/Kick off date.png')}}" class="w-24 h-24 mb-6" alt="No events">
-                <p class="font-semibold text-xl text-aktiv-grey text-center">No events available at the moment</p>
-                <p class="text-aktiv-grey text-center mt-2">Please check back later for upcoming events</p>
-            </div>
+                <div class="col-span-full flex flex-col items-center gap-4 py-16">
+                    <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-16 h-16 opacity-50" alt="no events">
+                    <div class="text-center">
+                        <h3 class="font-semibold text-xl text-aktiv-grey">No Events Available</h3>
+                        <p class="font-medium text-aktiv-grey">Check back later for upcoming events</p>
+                    </div>
+                </div>
             @endforelse
         </div>
 
-        <!-- Pagination -->
-        @if($events->count() > 0 && $events instanceof \Illuminate\Pagination\LengthAwarePaginator)
-        <div class="flex justify-center mt-8">
-            {{ $events->links() }}
-        </div>
+        <!-- Pagination if needed -->
+        @if(method_exists($events, 'links'))
+            <div class="flex justify-center">
+                {{ $events->links() }}
+            </div>
         @endif
     </div>
 </section>
-@endsection
 
-@push('after-scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Search functionality
-        const searchForm = document.querySelector('.search-form');
-        const searchInput = document.querySelector('.search-input');
-        
-        if (searchForm) {
-            searchForm.addEventListener('submit', function(e) {
-                if (searchInput.value.trim() === '') {
-                    e.preventDefault();
-                }
-            });
-        }
-        
-        // View toggle functionality
-        const gridViewBtn = document.getElementById('gridViewBtn');
-        const listViewBtn = document.getElementById('listViewBtn');
-        const eventsContainer = document.getElementById('eventsContainer');
-        
-        if (gridViewBtn && listViewBtn && eventsContainer) {
-            // Grid view handler
-            gridViewBtn.addEventListener('click', function() {
-                eventsContainer.classList.remove('grid-cols-1');
-                eventsContainer.classList.add('grid-cols-3');
-                gridViewBtn.classList.add('bg-aktiv-blue');
-                listViewBtn.classList.remove('bg-aktiv-blue');
-                
-                resetCardLayout();
-            });
-            
-            // List view handler
-            listViewBtn.addEventListener('click', function() {
-                eventsContainer.classList.remove('grid-cols-3');
-                eventsContainer.classList.add('grid-cols-1');
-                listViewBtn.classList.add('bg-aktiv-blue');
-                gridViewBtn.classList.remove('bg-aktiv-blue');
-                
-                applyListViewLayout();
-            });
-            
-            // Helper functions
-            function applyListViewLayout() {
-                const eventCards = document.querySelectorAll('#eventsContainer > a');
-                eventCards.forEach(card => {
-                    card.classList.add('flex-row');
-                    const thumbnail = card.querySelector('.relative');
-                    if (thumbnail) thumbnail.classList.add('w-1/3');
-                    const details = card.querySelector('.flex-col.gap-4');
-                    if (details) details.classList.add('w-2/3');
-                });
-            }
-            
-            function resetCardLayout() {
-                const eventCards = document.querySelectorAll('#eventsContainer > a');
-                eventCards.forEach(card => {
-                    card.classList.remove('flex-row');
-                    const thumbnail = card.querySelector('.relative');
-                    if (thumbnail) thumbnail.classList.remove('w-1/3');
-                    const details = card.querySelector('.flex-col.gap-4');
-                    if (details) details.classList.remove('w-2/3');
-                });
-            }
-        }
-    });
-</script>
-@endpush
+@endsection

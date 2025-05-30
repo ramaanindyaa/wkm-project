@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str; // Add this missing import
 
 class EventController extends Controller
 {
@@ -20,9 +21,8 @@ class EventController extends Controller
     public function index()
     {
         $events = Event::where('is_active', true)
-            ->where('is_open', true)
             ->orderBy('tanggal', 'asc')
-            ->get();
+            ->paginate(9);
             
         return view('event.index', compact('events'));
     }
@@ -32,12 +32,22 @@ class EventController extends Controller
      */
     public function showRegister(Event $event)
     {
-        // Check if event is available for registration
+        // Check if event is active and registration is open
+        if (!$event->is_active) {
+            return redirect()->route('event.show', $event->id)
+                ->withErrors(['error' => 'Event is not active for registration.']);
+        }
+
+        if ($event->has_started) {
+            return redirect()->route('event.show', $event->id)
+                ->withErrors(['error' => 'Registration is closed. Event has already started.']);
+        }
+
         if (!$event->is_open) {
             return redirect()->route('event.show', $event->id)
-                ->with('error', 'Registration for this event is currently closed.');
+                ->withErrors(['error' => 'Registration is currently closed for this event.']);
         }
-        
+
         return view('event.register', compact('event'));
     }
 
@@ -46,20 +56,15 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        // Validation rules for all fields
+        // Base validation rules
         $validationRules = [
             'event_id' => 'required|exists:events,id',
-            
-            // Personal Information (REQUIRED)
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
             'company' => 'nullable|string|max:255',
-            
-            // Registration Information
             'kategori_pendaftaran' => 'required|in:observer,kompetisi,undangan',
             'jenis_pendaftaran' => 'required|in:individu,tim',
-            'payment_status' => 'required|in:pending,approved,rejected',
         ];
 
         // Additional validation for team registration
@@ -71,29 +76,25 @@ class EventController extends Controller
             $validationRules['team_members.*.is_ketua'] = 'nullable|boolean';
         }
 
-        // Additional validation for competition category (only if needed)
-        if ($request->kategori_pendaftaran === 'kompetisi') {
-            $validationRules['google_drive_makalah'] = 'nullable|url|max:255';
-            $validationRules['google_drive_lampiran'] = 'nullable|url|max:255';
-            $validationRules['google_drive_video_sebelum'] = 'nullable|url|max:255';
-            $validationRules['google_drive_video_sesudah'] = 'nullable|url|max:255';
-        }
-        
-        // Validate the request
-        $validated = $request->validate($validationRules, [
-            // Custom error messages
+        // Custom validation messages
+        $messages = [
+            'event_id.required' => 'Event is required.',
+            'event_id.exists' => 'Selected event does not exist.',
             'name.required' => 'Full name is required.',
-            'phone.required' => 'Phone number is required.',
             'email.required' => 'Email address is required.',
             'email.email' => 'Please enter a valid email address.',
-            'kategori_pendaftaran.required' => 'Please select a registration category.',
-            'jenis_pendaftaran.required' => 'Please select a registration type.',
+            'phone.required' => 'Phone number is required.',
+            'kategori_pendaftaran.required' => 'Registration category is required.',
+            'jenis_pendaftaran.required' => 'Registration type is required.',
             'team_members.required' => 'Team members are required for team registration.',
             'team_members.min' => 'Team must have at least 3 members.',
             'team_members.*.nama.required' => 'Team member name is required.',
             'team_members.*.email.required' => 'Team member email is required.',
+            'team_members.*.email.email' => 'Team member email must be valid.',
             'team_members.*.kontak.required' => 'Team member phone number is required.',
-        ]);
+        ];
+
+        $validated = $request->validate($validationRules, $messages);
         
         try {
             // Validate team leader if team registration
@@ -123,79 +124,94 @@ class EventController extends Controller
             
             // Redirect to payment page
             return redirect()->route('event.payment', $event->id)
-                ->with('success', 'Registration data saved successfully. Please complete the payment process.');
+                ->with('success', 'Registration data saved. Please proceed with payment.');
                 
         } catch (\Exception $e) {
-            Log::error('Error saving registration data: ' . $e->getMessage());
+            Log::error('Event registration failed: ' . $e->getMessage());
             Log::error('Request data: ' . json_encode($request->all()));
             
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['general' => 'An error occurred while saving data. Please try again.']);
+                ->withErrors(['error' => 'Registration failed. Please try again.']);
         }
     }
 
     /**
-     * Show payment form
+     * Show event payment form
      */
     public function showPayment(Event $event)
     {
-        // Get registration data from session
+        // Check if registration data exists in session
         $registrationData = session('event_registration_data');
         
         if (!$registrationData) {
             return redirect()->route('event.register', $event->id)
-                ->with('error', 'Registration data not found. Please complete the registration form first.');
+                ->withErrors(['error' => 'Registration data not found. Please complete registration first.']);
+        }
+        
+        // Validate that the event ID matches
+        if ($registrationData['event_id'] != $event->id) {
+            return redirect()->route('event.register', $event->id)
+                ->withErrors(['error' => 'Registration data mismatch. Please register again.']);
+        }
+        
+        // Check if event is still active and registration is open
+        if (!$event->is_active || $event->has_started || !$event->is_open) {
+            session()->forget('event_registration_data');
+            return redirect()->route('event.show', $event->id)
+                ->withErrors(['error' => 'Event registration is no longer available.']);
         }
         
         return view('event.payment', compact('event', 'registrationData'));
     }
 
     /**
-     * Store payment information and create transaction
+     * Store event payment information and create transaction
      */
     public function storePayment(Request $request)
     {
+        // Get registration data from session
+        $registrationData = session('event_registration_data');
+        
+        if (!$registrationData) {
+            return redirect()->route('event.index')
+                ->withErrors(['error' => 'Registration session expired. Please register again.']);
+        }
+        
+        // Validate payment form data
         $validated = $request->validate([
             'event_id' => 'required|exists:events,id',
             'customer_bank_name' => 'required|string|max:255',
             'customer_bank_account' => 'required|string|max:255',
             'customer_bank_number' => 'required|string|max:255',
-            'proof' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // Max 5MB
+        ], [
+            'event_id.required' => 'Event is required.',
+            'event_id.exists' => 'Selected event does not exist.',
+            'customer_bank_name.required' => 'Bank name is required.',
+            'customer_bank_account.required' => 'Account holder name is required.',
+            'customer_bank_number.required' => 'Account number is required.',
+            'payment_proof.required' => 'Payment proof is required.',
+            'payment_proof.file' => 'Payment proof must be a file.',
+            'payment_proof.mimes' => 'Payment proof must be JPG, JPEG, PNG, or PDF.',
+            'payment_proof.max' => 'Payment proof must not exceed 5MB.',
         ]);
         
         try {
             DB::beginTransaction();
             
-            // Get registration data from session
-            $registrationData = session('event_registration_data');
-            
-            if (!$registrationData) {
-                throw new \Exception('Registration data not found.');
-            }
-            
-            // Get event to calculate total amount
+            // Get event for price calculation
             $event = Event::findOrFail($validated['event_id']);
             
-            // Calculate total amount
-            $teamSize = 1; // Default for individual
-            if ($registrationData['jenis_pendaftaran'] === 'tim') {
-                $teamSize = count($registrationData['team_members'] ?? []);
-            }
-            
-            $subtotal = $event->price * $teamSize;
-            $tax = $subtotal * 0.11; // PPN 11%
-            $totalAmount = $subtotal + $tax;
+            // Calculate total amount including PPN 11%
+            $totalAmount = $event->price * 1.11;
             
             // Upload payment proof
-            $proofPath = $request->file('proof')->store('event-payments', 'public');
+            $proofPath = $request->file('payment_proof')->store('event-payments', 'public');
             
-            // Create EventRegistrationTransaction record
+            // Create transaction record using model's auto-generated transaction ID
             $transactionData = [
-                // Basic transaction info
-                'is_paid' => false,
-                
-                // Personal information
+                // Personal information from registration
                 'name' => $registrationData['name'],
                 'email' => $registrationData['email'],
                 'phone' => $registrationData['phone'],
@@ -215,10 +231,10 @@ class EventController extends Controller
                 'payment_proof' => $proofPath,
                 
                 // Competition documents (will be filled later if approved)
-                'google_drive_makalah' => $registrationData['google_drive_makalah'] ?? null,
-                'google_drive_lampiran' => $registrationData['google_drive_lampiran'] ?? null,
-                'google_drive_video_sebelum' => $registrationData['google_drive_video_sebelum'] ?? null,
-                'google_drive_video_sesudah' => $registrationData['google_drive_video_sesudah'] ?? null,
+                'google_drive_makalah' => null,
+                'google_drive_lampiran' => null,
+                'google_drive_video_sebelum' => null,
+                'google_drive_video_sesudah' => null,
             ];
             
             $transaction = EventRegistrationTransaction::create($transactionData);
@@ -255,6 +271,15 @@ class EventController extends Controller
             
             // Clear registration data from session
             session()->forget('event_registration_data');
+            
+            // Log successful payment submission
+            Log::info('Event payment submitted successfully', [
+                'transaction_id' => $transaction->registration_trx_id,
+                'event_id' => $event->id,
+                'user_ip' => request()->ip(),
+                'registration_type' => $registrationData['jenis_pendaftaran'],
+                'category' => $registrationData['kategori_pendaftaran']
+            ]);
             
             return redirect()->route('event.payment.success', $transaction->id)
                 ->with('success', 'Payment submitted successfully. Please wait for verification.');
@@ -340,7 +365,7 @@ class EventController extends Controller
                     ->withErrors(['registration_trx_id' => 'Registration Transaction ID not found. Please check your Transaction ID.']);
             }
 
-            return view('event.registration_details', compact('transaction'));
+            return view('event.check_registration_details', compact('transaction'));
 
         } catch (\Exception $e) {
             Log::error('Error checking registration details: ' . $e->getMessage());

@@ -55,6 +55,7 @@ Check Registration
                 @endif
 
                 <!-- Check Registration Form -->
+                <!-- Form action should point to correct route -->
                 <form method="POST" action="{{ route('event.check_registration_details') }}" class="flex flex-col gap-6">
                     @csrf
                     
