@@ -97,4 +97,14 @@ class Event extends Model
     {
         return $this->is_active;
     }
+
+    /**
+     * Alias untuk method registrationTransactions
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function eventRegistrationTransactions()
+    {
+        return $this->hasMany(EventRegistrationTransaction::class);
+    }
 }

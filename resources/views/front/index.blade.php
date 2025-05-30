@@ -178,11 +178,11 @@
         <!-- Events Tab Content -->
         <div id="eventsTab" class="grid grid-cols-3 gap-6" style="display: none;">
             @forelse ($events as $event)
-            <a href="{{ route('event.show', $event->id) }}" class="card">
-                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-9 bg-white">
+            <a href="{{ route('event.show', $event->id) }}" class="card group">
+                <div class="flex flex-col h-full justify-between rounded-3xl p-6 gap-6 bg-white hover:shadow-lg transition-all duration-300">
                     <div class="flex flex-col gap-[18px]">
-                        <!-- Event Image -->
-                        <div class="flex w-full h-[200px] rounded-2xl bg-[#D9D9D9] overflow-hidden">
+                        <!-- Event Image with Status Badge -->
+                        <div class="thumbnail-container relative h-[200px] rounded-xl bg-[#D9D9D9] overflow-hidden">
                             @if($event->thumbnail)
                                 <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
                             @else
@@ -190,39 +190,73 @@
                                     <span class="text-white text-2xl font-bold">{{ substr($event->nama, 0, 1) }}</span>
                                 </div>
                             @endif
-                        </div>
-                        
-                        <!-- Event Date -->
-                        <div class="flex items-center gap-[6px]">
-                            <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
-                            <p class="font-medium text-aktiv-grey">
-                                {{ $event->tanggal->format('d M Y') }}
-                                @if($event->time_at)
-                                    • {{ $event->time_at->format('H:i') }} WIB
+                            
+                            <!-- Status Badge -->
+                            @if ($event->is_open)
+                                @if ($event->has_started)
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-orange text-white z-10">
+                                    <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">STARTED</span>
+                                </div>
+                                @else
+                                <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-green text-white z-10">
+                                    <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">OPEN</span>
+                                </div>
                                 @endif
-                            </p>
+                            @else
+                            <div class="absolute top-3 left-3 flex items-center rounded-full py-3 px-5 gap-1 bg-aktiv-red text-white z-10">
+                                    <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-6 h-6" alt="icon">
+                                    <span class="font-semibold">CLOSED</span>
+                            </div>
+                            @endif
                         </div>
                         
-                        <!-- Event Title -->
-                        <h3 class="min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none">
-                            {{ $event->nama }}
-                        </h3>
-                        
-                        <!-- Event Location -->
-                        <p class="font-medium text-aktiv-grey">
-                            {{ $event->lokasi }}
-                        </p>
+                        <!-- Event Details -->
+                        <div class="card-detail flex flex-col gap-3">
+                            <!-- Date & Time -->
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1">
+                                    <img src="{{asset('assets/images/icons/calendar-2.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ $event->tanggal->format('d M Y') }}
+                                    </span>
+                                </div>
+                                @if($event->time_at)
+                                <div class="flex items-center gap-1">
+                                    <img src="{{asset('assets/images/icons/timer.svg')}}" class="w-6 h-6 flex shrink-0" alt="icon">
+                                    <span class="font-medium text-aktiv-grey">
+                                        {{ $event->time_at->format('H:i') }} WIB
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Event Title -->
+                            <h3 class="min-h-[56px] font-semibold text-xl line-clamp-2 hover:line-clamp-none group-hover:text-aktiv-blue transition-all duration-300">
+                                {{ $event->nama }}
+                            </h3>
+                            
+                            <!-- Event Location -->
+                            <div class="flex items-center gap-2">
+                                <p class="font-medium text-aktiv-grey">
+                                    {{ $event->lokasi }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Price and CTA -->
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between mt-2">
                         <div class="flex items-center gap-[6px]">
                             <p class="font-semibold text-2xl leading-8 text-aktiv-red">
                                 Rp{{ number_format($event->price ?? 0, 0, ',', '.') }}
                             </p>
                             <p class="font-medium text-aktiv-grey">/person</p>
                         </div>
-                        <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0" alt="icon">
+                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-aktiv-blue/10 group-hover:bg-aktiv-blue/20 transition-all duration-300">
+                            <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-6 h-6 flex shrink-0 group-hover:translate-x-1 transition-all duration-300" alt="icon">
+                        </div>
                     </div>
                 </div>
             </a>

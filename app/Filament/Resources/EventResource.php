@@ -192,9 +192,9 @@ class EventResource extends Resource
                     ->trueColor('success')
                     ->falseColor('danger'),
 
-                // Jumlah peserta event
-                Tables\Columns\TextColumn::make('participants_count')
-                    ->counts('participants')
+                // Jumlah peserta event - FIX THIS LINE
+                Tables\Columns\TextColumn::make('eventRegistrationTransactions_count')
+                    ->counts('eventRegistrationTransactions')
                     ->label('Peserta'),
             ])
             ->filters([
@@ -247,8 +247,8 @@ class EventResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // HAPUS RELASI KE PARTICIPANT LAMA
-            // RelationManagers\ParticipantsRelationManager::class,
+            // Remove or comment out the non-existent relation manager
+            // RelationManagers\EventRegistrationTransactionsRelationManager::class,
         ];
     }
 
