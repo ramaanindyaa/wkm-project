@@ -420,7 +420,7 @@
 <footer class="w-full p-[52px] bg-white">
     <div class="flex flex-col w-full max-w-[1176px] mx-auto gap-8">
         <div class="flex flex-col items-center gap-4">
-            <img src="{{asset('assets/images/logos/Logo-blue.svg')}}" class="h-10" alt="logo">
+            <img src="{{asset('assets/images/logos/Logo.svg')}}" class="h-24" alt="logo">
             <p class="font-medium text-aktiv-grey">Ipsum is a company engaged in offline education.</p>
         </div>
         <hr class="border-[#E6E7EB]">
