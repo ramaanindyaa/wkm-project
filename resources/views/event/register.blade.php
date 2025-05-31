@@ -84,7 +84,7 @@
                                 <p class="font-medium text-aktiv-grey">Full Name *</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] border border-transparent hover:border-aktiv-blue/20 focus-within:border-aktiv-blue/40 overflow-hidden transition-all duration-300">
                                     <img src="{{asset('assets/images/icons/profile-circle.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/profile-circle-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/profile-circle-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon"> --}}
                                     <input type="text" name="name" value="{{ old('name') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Write your complete name" required>
                                 </div>
                                 @error('name')
@@ -97,7 +97,7 @@
                                 <p class="font-medium text-aktiv-grey">Email Address *</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] border border-transparent hover:border-aktiv-blue/20 focus-within:border-aktiv-blue/40 overflow-hidden transition-all duration-300">
                                     <img src="{{asset('assets/images/icons/sms.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/sms-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/sms-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon"> --}}
                                     <input type="email" name="email" value="{{ old('email') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Write your email address" required>
                                 </div>
                                 @error('email')
@@ -110,7 +110,7 @@
                                 <p class="font-medium text-aktiv-grey">Phone Number *</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] border border-transparent hover:border-aktiv-blue/20 focus-within:border-aktiv-blue/40 overflow-hidden transition-all duration-300">
                                     <img src="{{asset('assets/images/icons/call.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/call-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/call-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon"> --}}
                                     <input type="tel" name="phone" value="{{ old('phone') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Write your phone number" required>
                                 </div>
                                 @error('phone')
@@ -122,8 +122,8 @@
                             <label class="flex flex-col gap-4 input-field-container relative">
                                 <p class="font-medium text-aktiv-grey">Company</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] border border-transparent hover:border-aktiv-blue/20 focus-within:border-aktiv-blue/40 overflow-hidden transition-all duration-300">
-                                    <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/office-building.png')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex opacity-80" alt="icon">
+                                    <img src="{{asset('assets/images/icons/office-building.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/office-building-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon"> --}}
                                     <input type="text" name="company" value="{{ old('company') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Company name (optional)">
                                 </div>
                                 @error('company')
@@ -148,9 +148,9 @@
                                 <p class="font-medium text-aktiv-grey">Registration Category *</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] border border-transparent hover:border-aktiv-blue/20 focus-within:border-aktiv-blue/40 overflow-hidden transition-all duration-300">
                                     <img src="{{asset('assets/images/icons/category.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
-                                    <img src="{{asset('assets/images/icons/category-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/category-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon"> --}}
                                     <select name="kategori_pendaftaran" id="kategoriPendaftaran" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey select-with-custom-arrow" required>
-                                        <option value="" disabled {{ old('kategori_pendaftaran') ? '' : 'selected' }}>Choose registration category</option>
+                                        <option value="" disabled {{ old('kategori_pendaftaran') ? '' : 'selected' }}>Choose registration categoryZ</option>
                                         <option value="observer" {{ old('kategori_pendaftaran') == 'observer' ? 'selected' : '' }}>Observer</option>
                                         <option value="kompetisi" {{ old('kategori_pendaftaran') == 'kompetisi' ? 'selected' : '' }}>Competition</option>
                                         <option value="undangan" {{ old('kategori_pendaftaran') == 'undangan' ? 'selected' : '' }}>Invitation</option>

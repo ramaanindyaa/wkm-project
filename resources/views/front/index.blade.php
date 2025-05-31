@@ -255,7 +255,7 @@
                             <p class="font-medium text-aktiv-grey">/person</p>
                         </div>
                         <div class="w-12 h-12 flex items-center justify-center rounded-full bg-aktiv-blue/10 group-hover:bg-aktiv-blue/20 transition-all duration-300">
-                            <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-6 h-6 flex shrink-0 group-hover:translate-x-1 transition-all duration-300" alt="icon">
+                            <img src="{{asset('assets/images/icons/arrow-right.svg')}}" class="w-12 h-12 flex shrink-0 group-hover:translate-x-1 transition-all duration-300" alt="icon">
                         </div>
                     </div>
                 </div>

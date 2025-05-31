@@ -189,7 +189,7 @@
                             <label class="flex flex-col gap-4">
                                 <p class="font-medium text-aktiv-grey">Select Bank Type</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
-                                    <img src="{{asset('assets/images/icons/bank.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/bank.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon"> --}}
                                     <img src="{{asset('assets/images/icons/bank-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
                                     <select name="customer_bank_name" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" required>
                                         <option value="" disabled {{ old('customer_bank_name') ? '' : 'selected' }}>Choose your bank</option>
@@ -208,7 +208,7 @@
                             <label class="flex flex-col gap-4">
                                 <p class="font-medium text-aktiv-grey">Account Holder Name</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
-                                    <img src="{{asset('assets/images/icons/profile-circle.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/profile-circle.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon"> --}}
                                     <img src="{{asset('assets/images/icons/profile-circle-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
                                     <input type="text" name="customer_bank_account" value="{{ old('customer_bank_account') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Full name as per bank account" required>
                                 </div>
@@ -220,7 +220,7 @@
                             <label class="flex flex-col gap-4">
                                 <p class="font-medium text-aktiv-grey">Account Number</p>
                                 <div class="group input-wrapper flex items-center rounded-xl p-4 gap-2 bg-[#FBFBFB] overflow-hidden">
-                                    <img src="{{asset('assets/images/icons/card.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon">
+                                    {{-- <img src="{{asset('assets/images/icons/card.svg')}}" class="w-6 h-6 flex shrink-0 group-focus-within:hidden group-has-[:valid]:hidden" alt="icon"> --}}
                                     <img src="{{asset('assets/images/icons/card-black.svg')}}" class="w-6 h-6 shrink-0 hidden group-focus-within:flex group-has-[:valid]:flex" alt="icon">
                                     <input type="text" name="customer_bank_number" value="{{ old('customer_bank_number') }}" class="appearance-none bg-transparent w-full outline-none text-lg leading-[27px] font-semibold placeholder:font-medium placeholder:text-aktiv-grey" placeholder="Bank account number" required>
                                 </div>

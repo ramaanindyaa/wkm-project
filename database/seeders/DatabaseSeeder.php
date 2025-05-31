@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,10 +15,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
+        // Create admin user with specified credentials
+        $adminUser = User::factory()->create([
+            'name' => 'Admin WKM',
+            'email' => 'admin@wkm-ind.com',
+            'password' => Hash::make('qualitymgt321!'),
         ]);
+        
+        // Output admin credentials to console
+        $this->command->info('=== ADMIN USER CREATED ===');
+        $this->command->info('Email: admin@wkm-ind.com');
+        $this->command->info('Password: qualitymgt321!');
+        $this->command->info('========================');
         
         // HAPUS ATAU COMMENT SEEDER LAMA
         $this->call([
