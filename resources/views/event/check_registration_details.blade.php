@@ -50,38 +50,88 @@ Registration Details - {{ $transaction->registration_trx_id }}
                 </div>
 
                 <!-- Payment Status Card -->
-                <div class="flex flex-col gap-4 p-6 rounded-xl border border-[#E6E7EB] 
-                    @if($transaction->payment_status === 'approved') bg-[#F0FDF4] border-[#16A34A] 
-                    @elseif($transaction->payment_status === 'rejected') bg-[#FEF2F2] border-[#DC2626]
-                    @else bg-[#FEF3C7] border-[#D97706] @endif">
+                <div class="payment-status-card flex flex-col gap-4 p-6 rounded-xl border-2 transition-all duration-300 hover:shadow-lg
+                    @if($transaction->payment_status === 'approved') 
+                        bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-300 hover:border-emerald-400 shadow-emerald-100
+                    @elseif($transaction->payment_status === 'rejected') 
+                        bg-gradient-to-br from-red-50 to-rose-50 border-red-300 hover:border-red-400 shadow-red-100
+                    @else 
+                        bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300 hover:border-amber-400 shadow-amber-100 pulse-animation
+                    @endif">
                     
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-4">
                         @if($transaction->payment_status === 'approved')
-                            <div class="flex w-8 h-8 shrink-0 rounded-full bg-[#16A34A] items-center justify-center">
-                                <img src="{{asset('assets/images/icons/check.svg')}}" class="w-4 h-4 text-white" alt="success">
+                            <div class="status-icon-wrapper relative">
+                                <div class="flex w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 items-center justify-center shadow-lg">
+                                    <img src="{{asset('assets/images/icons/check.svg')}}" class="w-6 h-6 text-white animate-bounce-gentle" alt="success">
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-ping"></div>
                             </div>
-                            <div class="flex flex-col">
-                                <p class="font-semibold text-lg leading-[27px] text-[#16A34A]">Payment Approved</p>
-                                <p class="font-medium text-[#15803D]">Your registration has been confirmed and approved.</p>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-xl leading-[28px] text-emerald-600">Payment Approved</p>
+                                    <div class="px-2 py-1 rounded-full bg-emerald-100 border border-emerald-200">
+                                        <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Confirmed</span>
+                                    </div>
+                                </div>
+                                <p class="font-medium text-emerald-700 leading-relaxed">Your registration has been confirmed and approved. Welcome to the event!</p>
                             </div>
                         @elseif($transaction->payment_status === 'rejected')
-                            <div class="flex w-8 h-8 shrink-0 rounded-full bg-[#DC2626] items-center justify-center">
-                                <img src="{{asset('assets/images/icons/close.svg')}}" class="w-4 h-4 text-white" alt="rejected">
+                            <div class="status-icon-wrapper relative">
+                                <div class="flex w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 items-center justify-center shadow-lg">
+                                    <img src="{{asset('assets/images/icons/close.svg')}}" class="w-6 h-6 text-white" alt="rejected">
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-400 rounded-full opacity-60"></div>
                             </div>
-                            <div class="flex flex-col">
-                                <p class="font-semibold text-lg leading-[27px] text-[#DC2626]">Payment Rejected</p>
-                                <p class="font-medium text-[#B91C1C]">Unfortunately, your payment could not be verified. Please contact support.</p>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-xl leading-[28px] text-red-600">Payment Rejected</p>
+                                    <div class="px-2 py-1 rounded-full bg-red-100 border border-red-200">
+                                        <span class="text-xs font-semibold text-red-700 uppercase tracking-wide">Declined</span>
+                                    </div>
+                                </div>
+                                <p class="font-medium text-red-700 leading-relaxed">Unfortunately, your payment could not be verified. Please contact our support team for assistance.</p>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <img src="{{asset('assets/images/icons/info.svg')}}" class="w-4 h-4 text-red-500" alt="info">
+                                    <span class="text-sm text-red-600 font-medium">Contact support: support@wahanakendalimutu.com</span>
+                                </div>
                             </div>
                         @else
-                            <div class="flex w-8 h-8 shrink-0 rounded-full bg-[#D97706] items-center justify-center">
-                                <img src="{{asset('assets/images/icons/clock.svg')}}" class="w-4 h-4 text-white" alt="pending">
+                            <div class="status-icon-wrapper relative">
+                                <div class="flex w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 items-center justify-center shadow-lg">
+                                    <img src="{{asset('assets/images/icons/clock.svg')}}" class="w-6 h-6 text-white animate-spin-slow" alt="pending">
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-ping"></div>
                             </div>
-                            <div class="flex flex-col">
-                                <p class="font-semibold text-lg leading-[27px] text-[#D97706]">Payment Pending Verification</p>
-                                <p class="font-medium text-[#B45309]">Your payment is being reviewed. You'll be notified once it's verified.</p>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-xl leading-[28px] text-amber-600">Payment Under Review</p>
+                                    <div class="px-2 py-1 rounded-full bg-amber-100 border border-amber-200">
+                                        <span class="text-xs font-semibold text-amber-700 uppercase tracking-wide">Processing</span>
+                                    </div>
+                                </div>
+                                <p class="font-medium text-amber-700 leading-relaxed">Your payment is being reviewed by our team. You'll receive a notification once it's verified.</p>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <div class="flex space-x-1">
+                                        <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+                                        <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                                        <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                    </div>
+                                    <span class="text-sm text-amber-600 font-medium">Estimated review time: 1-2 business days</span>
+                                </div>
                             </div>
                         @endif
                     </div>
+                    
+                    <!-- Progress bar for pending status -->
+                    @if($transaction->payment_status === 'pending')
+                    <div class="relative">
+                        <div class="w-full bg-amber-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full progress-bar" style="width: 60%;"></div>
+                        </div>
+                        <span class="absolute right-0 top-3 text-xs text-amber-600 font-medium">60% Complete</span>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Event Information -->

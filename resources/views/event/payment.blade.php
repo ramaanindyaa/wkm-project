@@ -299,56 +299,215 @@
                 </form>
             </div>
 
-            <!-- Event Details Sidebar -->
+            <!-- Enhanced Event Details Sidebar -->
             <div class="lg:col-span-1">
-                <div class="sticky top-8 flex flex-col gap-6 rounded-3xl p-8 bg-white shadow-lg">
-                    <h3 class="font-Neue-Plak-bold text-xl">Event Details</h3>
+                <div class="sticky top-8 flex flex-col gap-6 rounded-3xl p-8 bg-white shadow-lg hover:shadow-xl transition-all duration-500">
+                    <!-- Header with Icon -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex w-12 h-12 rounded-full bg-gradient-to-br from-aktiv-blue to-aktiv-blue/80 items-center justify-center shadow-md">
+                            <img src="{{asset('assets/images/icons/receipt-text.svg')}}" class="w-6 h-6 text-white" alt="event">
+                        </div>
+                        <h3 class="font-Neue-Plak-bold text-xl">Event Details</h3>
+                    </div>
                     
-                    <!-- Event Image -->
-                    <div class="flex w-full h-[200px] rounded-xl overflow-hidden">
+                    <!-- Event Image with Enhanced Styling -->
+                    <div class="flex w-full h-[200px] rounded-xl overflow-hidden relative group shadow-md hover:shadow-lg transition-all duration-500">
                         @if($event->thumbnail)
-                            <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover" alt="{{ $event->nama }}">
+                            <img src="{{ Storage::url($event->thumbnail) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $event->nama }}">
                         @else
-                            <div class="w-full h-full bg-gradient-to-br from-aktiv-blue to-aktiv-orange flex items-center justify-center">
+                            <div class="w-full h-full bg-gradient-to-br from-aktiv-blue to-aktiv-orange flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
                                 <span class="text-white text-4xl font-bold">{{ substr($event->nama, 0, 1) }}</span>
+                            </div>
+                        @endif
+                        
+                        <!-- Overlay on hover -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <div class="p-4 w-full">
+                                <p class="text-white font-semibold text-lg">{{ $event->nama }}</p>
+                                <p class="text-white/80 text-sm">View Event Details</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Enhanced Status Badge -->
+                        @if($event->is_open)
+                            @if($event->has_started)
+                            <div class="absolute top-3 left-3 flex items-center rounded-full py-2 px-4 gap-2 bg-gradient-to-r from-aktiv-orange to-orange-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 z-10 animate-pulse-slow status-badge">
+                                <div class="relative">
+                                    <img src="{{asset('assets/images/icons/timer-start.svg')}}" class="w-4 h-4 animate-spin-slow" alt="icon">
+                                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                                </div>
+                                <span class="font-bold text-sm tracking-wide drop-shadow-sm">STARTED</span>
+                                <div class="w-2 h-2 bg-white/70 rounded-full animate-pulse"></div>
+                            </div>
+                            @else
+                            <div class="absolute top-3 left-3 flex items-center rounded-full py-2 px-4 gap-2 bg-gradient-to-r from-aktiv-green to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 z-10 animate-bounce-gentle status-badge">
+                                <div class="relative">
+                                    <img src="{{asset('assets/images/icons/medal-star.svg')}}" class="w-4 h-4 animate-bounce-gentle" alt="icon">
+                                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                                </div>
+                                <span class="font-bold text-sm tracking-wide drop-shadow-sm">OPEN</span>
+                                <div class="flex gap-1 status-dots">
+                                    <div class="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse delay-100 status-dot"></div>
+                                    <div class="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse delay-200 status-dot"></div>
+                                    <div class="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse delay-300 status-dot"></div>
+                                </div>
+                            </div>
+                            @endif
+                        @else
+                            <div class="absolute top-3 left-3 flex items-center rounded-full py-2 px-4 gap-2 bg-gradient-to-r from-aktiv-red to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 z-10 animate-fade-in-out status-badge">
+                                <div class="relative">
+                                    <img src="{{asset('assets/images/icons/sand-timer.svg')}}" class="w-4 h-4 opacity-90" alt="icon">
+                                    <div class="absolute inset-0 bg-red-500/20 rounded-full animate-ping"></div>
+                                </div>
+                                <span class="font-bold text-sm tracking-wide drop-shadow-sm">CLOSED</span>
+                                <div class="w-2 h-2 bg-white/50 rounded-full animate-pulse-slow"></div>
                             </div>
                         @endif
                     </div>
 
-                    <!-- Event Info -->
+                    <!-- Event Info with Enhanced Cards -->
                     <div class="flex flex-col gap-4">
-                        <h4 class="font-semibold text-lg">{{ $event->nama }}</h4>
+                        <h4 class="font-semibold text-lg text-aktiv-black">{{ $event->nama }}</h4>
                         
-                        <div class="flex items-center gap-3">
-                            <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
-                            <span class="font-medium text-aktiv-grey">{{ $event->tanggal->format('d F Y') }}</span>
+                        <!-- Date Card -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-[#FBFBFB] transition-all duration-300 border border-transparent hover:border-aktiv-blue/20">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-aktiv-blue/10 to-aktiv-blue/20 shadow-sm">
+                                <img src="{{asset('assets/images/icons/calendar.svg')}}" class="w-5 h-5 text-aktiv-blue" alt="icon">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="text-xs font-medium text-aktiv-grey uppercase tracking-wide">Event Date</span>
+                                <span class="font-semibold text-aktiv-black">{{ $event->tanggal->format('d F Y') }}</span>
+                            </div>
                         </div>
 
+                        <!-- Time Card -->
                         @if($event->time_at)
-                        <div class="flex items-center gap-3">
-                            <img src="{{asset('assets/images/icons/clock.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
-                            <span class="font-medium text-aktiv-grey">{{ $event->time_at->format('H:i') }} WIB</span>
+                        <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-[#FBFBFB] transition-all duration-300 border border-transparent hover:border-aktiv-blue/20">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-aktiv-orange/10 to-aktiv-orange/20 shadow-sm">
+                                <img src="{{asset('assets/images/icons/clock.svg')}}" class="w-5 h-5 text-aktiv-orange" alt="icon">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="text-xs font-medium text-aktiv-grey uppercase tracking-wide">Event Time</span>
+                                <span class="font-semibold text-aktiv-black">{{ $event->time_at->format('H:i') }} WIB</span>
+                            </div>
                         </div>
                         @endif
 
-                        <div class="flex items-center gap-3">
-                            <img src="{{asset('assets/images/icons/location.svg')}}" class="w-5 h-5 flex shrink-0" alt="icon">
-                            <span class="font-medium text-aktiv-grey">{{ $event->lokasi }}</span>
+                        <!-- Location Card -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-[#FBFBFB] transition-all duration-300 border border-transparent hover:border-aktiv-blue/20">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-aktiv-green/10 to-aktiv-green/20 shadow-sm">
+                                <img src="{{asset('assets/images/icons/location.svg')}}" class="w-5 h-5 text-aktiv-green" alt="icon">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="text-xs font-medium text-aktiv-grey uppercase tracking-wide">Location</span>
+                                <span class="font-semibold text-aktiv-black line-clamp-2">{{ $event->lokasi }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Registration Count Card -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-aktiv-blue/5 to-aktiv-blue/10 border border-aktiv-blue/20">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-aktiv-blue shadow-sm">
+                                <img src="{{asset('assets/images/icons/profile-2user.svg')}}" class="w-5 h-5 text-white" alt="icon">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="text-xs font-medium text-aktiv-blue uppercase tracking-wide">Registered</span>
+                                <span class="font-bold text-aktiv-blue">{{ $event->total_participants ?? 0 }} participants</span>
+                            </div>
+                            <div class="animate-ping w-2 h-2 rounded-full bg-aktiv-blue opacity-75"></div>
                         </div>
                     </div>
 
-                    <!-- Payment Reminder -->
-                    <div class="flex flex-col gap-3 p-4 rounded-xl bg-[#FDF6E4] border border-[#F59E0B]">
-                        <div class="flex items-center gap-3">
-                            <img src="{{asset('assets/images/icons/warning.svg')}}" class="w-5 h-5 text-amber-600" alt="warning">
-                            <h4 class="font-semibold text-amber-800">Payment Reminder</h4>
+                    <!-- Divider with Design -->
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-dashed border-[#E6E7EB]"></div>
                         </div>
-                        <ul class="text-sm text-amber-700 space-y-1 ml-8">
-                            <li>• Transfer exact amount including PPN</li>
-                            <li>• Upload clear payment receipt</li>
-                            <li>• Payment will be verified within 1x24 hours</li>
-                            <li>• Keep your transaction ID for reference</li>
-                        </ul>
+                        <div class="relative flex justify-center">
+                            <span class="bg-white px-3 text-sm font-medium text-aktiv-grey">Payment Information</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Payment Reminder -->
+                    <div class="flex flex-col gap-4 p-5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-amber-100 shadow-sm">
+                                <img src="{{asset('assets/images/icons/warning.svg')}}" class="w-5 h-5 text-amber-600" alt="warning">
+                            </div>
+                            <h4 class="font-semibold text-amber-800">Payment Guidelines</h4>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-white/70 border border-amber-200/50">
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-amber-500 shadow-sm">
+                                    <span class="text-white text-xs font-bold">1</span>
+                                </div>
+                                <p class="text-sm text-amber-800 font-medium">Transfer exact amount including PPN</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-white/70 border border-amber-200/50">
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-amber-500 shadow-sm">
+                                    <span class="text-white text-xs font-bold">2</span>
+                                </div>
+                                <p class="text-sm text-amber-800 font-medium">Upload clear payment receipt</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-white/70 border border-amber-200/50">
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-amber-500 shadow-sm">
+                                    <span class="text-white text-xs font-bold">3</span>
+                                </div>
+                                <p class="text-sm text-amber-800 font-medium">Verification within 1x24 hours</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-white/70 border border-amber-200/50">
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-amber-500 shadow-sm">
+                                    <span class="text-white text-xs font-bold">4</span>
+                                </div>
+                                <p class="text-sm text-amber-800 font-medium">Keep transaction ID for reference</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-aktiv-green/5 to-aktiv-green/10 border border-aktiv-green/20 hover:from-aktiv-green/10 hover:to-aktiv-green/15 transition-all duration-300 cursor-pointer">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-aktiv-green shadow-sm">
+                                <img src="{{asset('assets/images/icons/shield-tick.svg')}}" class="w-4 h-4 text-white" alt="secure">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="font-semibold text-aktiv-green">Secure Payment</span>
+                                <span class="text-xs text-aktiv-green/80">256-bit SSL encrypted</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-aktiv-blue/5 to-aktiv-blue/10 border border-aktiv-blue/20 hover:from-aktiv-blue/10 hover:to-aktiv-blue/15 transition-all duration-300 cursor-pointer">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-aktiv-blue shadow-sm">
+                                <img src="{{asset('assets/images/icons/call.svg')}}" class="w-4 h-4 text-white" alt="support">
+                            </div>
+                            <div class="flex flex-col flex-1">
+                                <span class="font-semibold text-aktiv-blue">24/7 Support</span>
+                                <span class="text-xs text-aktiv-blue/80">Need help? Contact us</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Summary Card -->
+                    <div class="flex flex-col gap-4 p-5 rounded-xl bg-gradient-to-br from-aktiv-red/5 to-aktiv-red/10 border border-aktiv-red/20 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-aktiv-red shadow-sm">
+                                    <img src="{{asset('assets/images/icons/money-recive.svg')}}" class="w-4 h-4 text-white" alt="price">
+                                </div>
+                                <span class="font-semibold text-aktiv-grey">Total Amount</span>
+                            </div>
+                            <span class="font-bold text-2xl text-aktiv-red">
+                                Rp{{ number_format($totalAmount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-aktiv-red/80">
+                            <img src="{{asset('assets/images/icons/info.svg')}}" class="w-4 h-4" alt="info">
+                            <span class="text-sm font-medium">Including PPN 11%</span>
+                        </div>
                     </div>
                 </div>
             </div>
